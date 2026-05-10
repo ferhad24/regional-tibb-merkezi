@@ -19,8 +19,11 @@ export default function Home() {
       api.get('/public/doctors'),
     ])
       .then(([deptRes, docRes]) => {
-        setDepartments(deptRes.data);
-        setDoctors(docRes.data);
+        setDepartments(Array.isArray(deptRes.data) ? deptRes.data : []);
+        setDoctors(Array.isArray(docRes.data) ? docRes.data : []);
+        if (!Array.isArray(docRes.data)) {
+          setError('Backend-dən gözlənilməyən cavab gəldi. VITE_API_BASE_URL düzgün təyin olunubmu?');
+        }
       })
       .catch((err) => setError(extractError(err)))
       .finally(() => setLoading(false));
