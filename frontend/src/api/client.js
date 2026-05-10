@@ -26,11 +26,8 @@ api.interceptors.request.use((config) => {
 api.interceptors.response.use(
   (res) => res,
   (err) => {
-    if (err.response?.status === 401 && tokenStorage.get()) {
+    if (err.response?.status === 401) {
       tokenStorage.clear();
-      if (!window.location.pathname.startsWith('/login')) {
-        window.location.href = '/login?expired=1';
-      }
     }
     return Promise.reject(err);
   }
