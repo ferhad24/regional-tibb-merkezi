@@ -2,6 +2,8 @@
 
 Xəstə qeydiyyatı və onlayn növbə təyini sistemi. **Spring Boot REST API + React SPA + JWT** arxitekturası.
 
+> 🚀 **Deploy etmək üçün**: [DEPLOY.md](DEPLOY.md) — Vercel + Render + Neon (3-tərəfli pulsuz hosting)
+
 ## Texnologiyalar
 
 **Backend** (`medical-center/`):
