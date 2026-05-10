@@ -15,7 +15,7 @@ export default function Navbar() {
       <div className="container">
         <Link className="navbar-brand fw-bold" to="/">
           <i className="bi bi-hospital me-2" />
-          Regional Tibb Mərkəzi
+          MediRegSys
         </Link>
         <button
           className="navbar-toggler"

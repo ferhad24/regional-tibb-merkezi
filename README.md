@@ -1,4 +1,4 @@
-# Regional Tibb Mərkəzi
+# MediRegSys
 
 Xəstə qeydiyyatı və onlayn növbə təyini sistemi. **Spring Boot REST API + React SPA + JWT** arxitekturası.
 

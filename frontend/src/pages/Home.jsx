@@ -58,7 +58,7 @@ export default function Home() {
             Sağlamlığınız bizim prioritetimizdir
           </h1>
           <p className="lead mb-3 opacity-75">
-            Regional Tibb Mərkəzində mütəxəssis həkimlərimiz və müasir avadanlıqlarla sizin
+            MediRegSys-də mütəxəssis həkimlərimiz və müasir avadanlıqlarla sizin
             xidmətinizdəyik. İndi onlayn növbə təyin edin.
           </p>
           {!user && (
