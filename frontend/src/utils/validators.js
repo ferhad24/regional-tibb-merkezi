@@ -60,11 +60,9 @@ export const validateEmail = (v) => {
 
 export const validatePhone = (v) => {
   const t = (v || '').trim();
-  if (!t) return 'Telefon nömrəsi boş ola bilməz';
-  // + ve reqemler, bosluqlar, defis, mötərizə icazəli
-  const cleaned = t.replace(/[\s()-]/g, '');
-  if (!/^\+?\d{7,15}$/.test(cleaned)) {
-    return 'Düzgün telefon nömrəsi daxil edin (məs. +994501234567)';
+  if (!t || t === '+994') return 'Telefon nömrəsi boş ola bilməz';
+  if (!/^\+994\d{9}$/.test(t)) {
+    return '+994 sonra 9 rəqəm olmalıdır (məs. +994501234567)';
   }
   return null;
 };

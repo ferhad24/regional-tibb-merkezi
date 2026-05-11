@@ -8,6 +8,7 @@ import { validateUsername, validateLoginPassword } from '../utils/validators.js'
 export default function Login() {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [errors, setErrors] = useState({});
   const [touched, setTouched] = useState({});
   const [serverError, setServerError] = useState(null);
@@ -64,7 +65,7 @@ export default function Login() {
     }
   };
 
-  const showError = (field) => touched[field] && errors[field];
+  const showErr = (field) => touched[field] && errors[field];
 
   return (
     <div className="auth-page">
@@ -84,30 +85,41 @@ export default function Login() {
           )}
 
           <form onSubmit={handleSubmit} noValidate>
-            <div className="mb-3">
+            <div className="mb-2">
               <label className="form-label">İstifadəçi adı</label>
               <input
                 type="text"
-                className={`form-control ${showError('username') ? 'is-invalid' : ''}`}
+                className={`form-control ${showErr('username') ? 'is-invalid' : ''}`}
                 value={username}
                 onChange={handleChange('username', setUsername)}
                 onBlur={handleBlur('username')}
                 autoFocus
                 autoComplete="username"
               />
-              {showError('username') && <span className="field-error">{errors.username}</span>}
+              <span className="field-error">{showErr('username') ? errors.username : ''}</span>
             </div>
             <div className="mb-3">
               <label className="form-label">Şifrə</label>
-              <input
-                type="password"
-                className={`form-control ${showError('password') ? 'is-invalid' : ''}`}
-                value={password}
-                onChange={handleChange('password', setPassword)}
-                onBlur={handleBlur('password')}
-                autoComplete="current-password"
-              />
-              {showError('password') && <span className="field-error">{errors.password}</span>}
+              <div className="password-wrap">
+                <input
+                  type={showPassword ? 'text' : 'password'}
+                  className={`form-control ${showErr('password') ? 'is-invalid' : ''}`}
+                  value={password}
+                  onChange={handleChange('password', setPassword)}
+                  onBlur={handleBlur('password')}
+                  autoComplete="current-password"
+                />
+                <button
+                  type="button"
+                  className="password-toggle"
+                  onClick={() => setShowPassword((v) => !v)}
+                  aria-label={showPassword ? 'Şifrəni gizlət' : 'Şifrəni göstər'}
+                  tabIndex={-1}
+                >
+                  <i className={`bi ${showPassword ? 'bi-eye-slash' : 'bi-eye'}`} />
+                </button>
+              </div>
+              <span className="field-error">{showErr('password') ? errors.password : ''}</span>
             </div>
             <button type="submit" className="btn btn-primary w-100" disabled={submitting}>
               {submitting ? 'Gözləyin...' : 'Daxil ol'}

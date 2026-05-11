@@ -12,19 +12,42 @@ import {
   validateConfirmPassword,
 } from '../utils/validators.js';
 
+const PHONE_PREFIX = '+994';
+const PHONE_MAX = PHONE_PREFIX.length + 9; // +994 + 9 reqem
+
 const initial = {
   username: '',
   password: '',
   confirmPassword: '',
   fullName: '',
   email: '',
-  phone: '',
+  phone: PHONE_PREFIX,
 };
+
+// Telefon dəyərini həmişə +994 ile başlayan, yalnız rəqəm olan formaya çevir
+function sanitizePhone(raw) {
+  let v = raw || '';
+  // Bütün hərf və digər simvolları çıxar (+ və rəqəm qalsın)
+  v = v.replace(/[^\d+]/g, '');
+  // +994 prefiksini məcburi qoy
+  if (v.startsWith(PHONE_PREFIX)) {
+    v = PHONE_PREFIX + v.slice(PHONE_PREFIX.length).replace(/\D/g, '');
+  } else {
+    // İstifadəçi prefiksi silmək istəyibsə, geri qoy
+    const digits = v.replace(/\D/g, '');
+    const stripped = digits.startsWith('994') ? digits.slice(3) : digits;
+    v = PHONE_PREFIX + stripped;
+  }
+  if (v.length > PHONE_MAX) v = v.slice(0, PHONE_MAX);
+  return v;
+}
 
 export default function Register() {
   const [form, setForm] = useState(initial);
   const [errors, setErrors] = useState({});
   const [touched, setTouched] = useState({});
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [serverError, setServerError] = useState(null);
   const [submitting, setSubmitting] = useState(false);
   const { register } = useAuth();
@@ -52,13 +75,26 @@ export default function Register() {
     const { name, value } = e.target;
     const next = { ...form, [name]: value };
     setForm(next);
-    if (touched[name]) {
+    if (touched[name] || (touched.confirmPassword && name === 'password')) {
       setErrors(runValidation(next));
     }
-    if (touched.confirmPassword && name === 'password') {
-      // Confirm field-i yeni passworda gore yenile
+  };
+
+  // Telefon ucun ayri handler - yalniz reqem icaze ver, prefiks kilidli
+  const handlePhoneChange = (e) => {
+    const clean = sanitizePhone(e.target.value);
+    const next = { ...form, phone: clean };
+    setForm(next);
+    if (touched.phone) {
       setErrors(runValidation(next));
     }
+  };
+
+  // Telefon focus oldugda kursoru rəqəm hissəsinə qoy ki istifadəçi +994-ü silməsin
+  const handlePhoneFocus = (e) => {
+    const len = e.target.value.length;
+    // Kursoru sonuna apar
+    setTimeout(() => e.target.setSelectionRange(len, len), 0);
   };
 
   const handleBlur = (e) => {
@@ -89,8 +125,8 @@ export default function Register() {
     }
   };
 
-  const showError = (field) => touched[field] && errors[field];
-  const cls = (field) => `form-control ${showError(field) ? 'is-invalid' : ''}`;
+  const showErr = (field) => touched[field] && errors[field];
+  const cls = (field) => `form-control ${showErr(field) ? 'is-invalid' : ''}`;
 
   return (
     <div className="auth-page">
@@ -116,7 +152,7 @@ export default function Register() {
                   onBlur={handleBlur}
                   autoComplete="name"
                 />
-                {showError('fullName') && <span className="field-error">{errors.fullName}</span>}
+                <span className="field-error">{showErr('fullName') ? errors.fullName : ''}</span>
               </div>
               <div className="col-md-6">
                 <label className="form-label">İstifadəçi adı</label>
@@ -128,7 +164,7 @@ export default function Register() {
                   onBlur={handleBlur}
                   autoComplete="username"
                 />
-                {showError('username') && <span className="field-error">{errors.username}</span>}
+                <span className="field-error">{showErr('username') ? errors.username : ''}</span>
               </div>
               <div className="col-md-6">
                 <label className="form-label">E-poçt</label>
@@ -141,7 +177,7 @@ export default function Register() {
                   onBlur={handleBlur}
                   autoComplete="email"
                 />
-                {showError('email') && <span className="field-error">{errors.email}</span>}
+                <span className="field-error">{showErr('email') ? errors.email : ''}</span>
               </div>
               <div className="col-md-6">
                 <label className="form-label">Telefon</label>
@@ -149,45 +185,69 @@ export default function Register() {
                   name="phone"
                   className={cls('phone')}
                   value={form.phone}
-                  onChange={handleChange}
+                  onChange={handlePhoneChange}
+                  onFocus={handlePhoneFocus}
                   onBlur={handleBlur}
-                  placeholder="+994501234567"
+                  inputMode="tel"
                   autoComplete="tel"
+                  maxLength={PHONE_MAX}
                 />
-                {showError('phone') && <span className="field-error">{errors.phone}</span>}
+                <span className="field-error">{showErr('phone') ? errors.phone : ''}</span>
               </div>
               <div className="col-md-6">
                 <label className="form-label">Şifrə</label>
-                <input
-                  type="password"
-                  name="password"
-                  className={cls('password')}
-                  value={form.password}
-                  onChange={handleChange}
-                  onBlur={handleBlur}
-                  autoComplete="new-password"
-                />
-                {showError('password') && <span className="field-error">{errors.password}</span>}
+                <div className="password-wrap">
+                  <input
+                    type={showPassword ? 'text' : 'password'}
+                    name="password"
+                    className={cls('password')}
+                    value={form.password}
+                    onChange={handleChange}
+                    onBlur={handleBlur}
+                    autoComplete="new-password"
+                  />
+                  <button
+                    type="button"
+                    className="password-toggle"
+                    onClick={() => setShowPassword((v) => !v)}
+                    aria-label={showPassword ? 'Şifrəni gizlət' : 'Şifrəni göstər'}
+                    tabIndex={-1}
+                  >
+                    <i className={`bi ${showPassword ? 'bi-eye-slash' : 'bi-eye'}`} />
+                  </button>
+                </div>
+                <span className="field-error">{showErr('password') ? errors.password : ''}</span>
               </div>
               <div className="col-md-6">
                 <label className="form-label">Şifrəni təkrarla</label>
-                <input
-                  type="password"
-                  name="confirmPassword"
-                  className={cls('confirmPassword')}
-                  value={form.confirmPassword}
-                  onChange={handleChange}
-                  onBlur={handleBlur}
-                  autoComplete="new-password"
-                />
-                {showError('confirmPassword') && (
-                  <span className="field-error">{errors.confirmPassword}</span>
-                )}
+                <div className="password-wrap">
+                  <input
+                    type={showConfirmPassword ? 'text' : 'password'}
+                    name="confirmPassword"
+                    className={cls('confirmPassword')}
+                    value={form.confirmPassword}
+                    onChange={handleChange}
+                    onBlur={handleBlur}
+                    autoComplete="new-password"
+                  />
+                  <button
+                    type="button"
+                    className="password-toggle"
+                    onClick={() => setShowConfirmPassword((v) => !v)}
+                    aria-label={showConfirmPassword ? 'Şifrəni gizlət' : 'Şifrəni göstər'}
+                    tabIndex={-1}
+                  >
+                    <i className={`bi ${showConfirmPassword ? 'bi-eye-slash' : 'bi-eye'}`} />
+                  </button>
+                </div>
+                <span className="field-error">
+                  {showErr('confirmPassword') ? errors.confirmPassword : ''}
+                </span>
               </div>
             </div>
             <button
               type="submit"
-              className="btn btn-primary w-100 mt-4"
+              className="btn btn-primary w-100 mt-3"
               disabled={submitting}
             >
               {submitting ? 'Gözləyin...' : 'Qeydiyyatdan keç'}
