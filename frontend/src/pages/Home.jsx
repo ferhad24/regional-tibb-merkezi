@@ -3,6 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import api from '../api/client.js';
 import { useAuth } from '../auth/AuthContext.jsx';
 import { STATIC_DEPARTMENTS, STATIC_DOCTORS } from '../data/staticDoctors.js';
+import DoctorAvatar from '../components/DoctorAvatar.jsx';
+import PrettyDropdown from '../components/PrettyDropdown.jsx';
 
 export default function Home() {
   const [doctors, setDoctors] = useState(STATIC_DOCTORS);
@@ -71,17 +73,16 @@ export default function Home() {
             <i className="bi bi-people me-2 text-primary" />
             Həkimlərimiz
           </h2>
-          <select
-            className="form-select select-pretty"
-            style={{ maxWidth: 280 }}
-            value={filter}
-            onChange={(e) => setFilter(e.target.value)}
-          >
-            <option value="all">Bütün şöbələr</option>
-            {departments.map((d) => (
-              <option key={d.id} value={d.id}>{d.name}</option>
-            ))}
-          </select>
+          <div style={{ width: 280 }}>
+            <PrettyDropdown
+              value={filter}
+              onChange={setFilter}
+              options={[
+                { value: 'all', label: 'Bütün şöbələr' },
+                ...departments.map((d) => ({ value: String(d.id), label: d.name })),
+              ]}
+            />
+          </div>
         </div>
 
         {Object.keys(grouped).length === 0 && (
@@ -105,18 +106,7 @@ export default function Home() {
                   <div className="card doctor-card h-100">
                     <div className="card-body">
                       <div className="d-flex align-items-center mb-3">
-                        {doc.avatarUrl ? (
-                          <img
-                            src={doc.avatarUrl}
-                            alt={doc.fullName}
-                            className="doctor-avatar me-3"
-                            loading="lazy"
-                          />
-                        ) : (
-                          <span className="doctor-avatar-fallback me-3">
-                            <i className="bi bi-person-fill" />
-                          </span>
-                        )}
+                        <DoctorAvatar src={doc.avatarUrl} name={doc.fullName} className="me-3" />
                         <div className="flex-grow-1">
                           <h5 className="card-title mb-1">{doc.fullName}</h5>
                           <p className="text-primary mb-0 small fw-semibold">
@@ -132,7 +122,7 @@ export default function Home() {
                         onClick={() => handleBook(doc.id)}
                       >
                         <i className="bi bi-calendar-plus me-1" />
-                        Növbəyə yaz
+                        Növbəyə yazıl
                       </button>
                     </div>
                   </div>
