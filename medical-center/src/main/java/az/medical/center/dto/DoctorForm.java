@@ -23,6 +23,9 @@ public class DoctorForm {
     @Size(max = 2000)
     private String bio;
 
+    @Size(max = 500)
+    private String avatarUrl;
+
     @NotNull(message = "Şöbə seçilməlidir")
     private Long departmentId;
 }

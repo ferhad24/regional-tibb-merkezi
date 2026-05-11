@@ -28,6 +28,9 @@ public class Doctor {
     @Column(columnDefinition = "TEXT")
     private String bio;
 
+    @Column(name = "avatar_url", length = 500)
+    private String avatarUrl;
+
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "department_id", nullable = false)
     private Department department;

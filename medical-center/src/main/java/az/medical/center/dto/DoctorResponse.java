@@ -13,6 +13,7 @@ public class DoctorResponse {
     private String fullName;
     private String specialization;
     private String bio;
+    private String avatarUrl;
     private Long departmentId;
     private String departmentName;
 
@@ -22,6 +23,7 @@ public class DoctorResponse {
                 .fullName(doctor.getFullName())
                 .specialization(doctor.getSpecialization())
                 .bio(doctor.getBio())
+                .avatarUrl(doctor.getAvatarUrl())
                 .departmentId(doctor.getDepartment().getId())
                 .departmentName(doctor.getDepartment().getName())
                 .build();

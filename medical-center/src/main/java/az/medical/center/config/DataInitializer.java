@@ -14,8 +14,10 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 @Component
 @RequiredArgsConstructor
@@ -35,11 +37,24 @@ public class DataInitializer implements CommandLineRunner {
     @Value("${app.admin.email}")
     private String adminEmail;
 
+    private static final Map<String, String> DEPT_DESC = Map.of(
+            "Kardiologiya", "Ürək və damar xəstəlikləri şöbəsi",
+            "Nevrologiya", "Sinir sistemi xəstəlikləri şöbəsi",
+            "Pediatriya", "Uşaq xəstəlikləri şöbəsi",
+            "Daxili Xəstəliklər", "Daxili orqanların xəstəlikləri şöbəsi"
+    );
+
+    private static String img(String id) {
+        return "https://images.unsplash.com/photo-" + id
+                + "?w=400&h=400&fit=crop&crop=faces&q=80&auto=format";
+    }
+
     @Override
     @Transactional
     public void run(String... args) {
         seedAdmin();
-        seedDepartmentsAndDoctors();
+        Map<String, Department> depts = ensureDepartments();
+        seedDoctors(depts);
     }
 
     private void seedAdmin() {
@@ -57,44 +72,116 @@ public class DataInitializer implements CommandLineRunner {
         userRepository.save(admin);
     }
 
-    private void seedDepartmentsAndDoctors() {
-        if (departmentRepository.count() > 0) return;
+    private Map<String, Department> ensureDepartments() {
+        Map<String, Department> result = new HashMap<>();
+        for (String name : DEPT_DESC.keySet()) {
+            Department d = departmentRepository.findByNameIgnoreCase(name)
+                    .orElseGet(() -> departmentRepository.save(
+                            Department.builder()
+                                    .name(name)
+                                    .description(DEPT_DESC.get(name))
+                                    .build()
+                    ));
+            result.put(name, d);
+        }
+        return result;
+    }
 
-        Map<String, String> deptDescriptions = Map.of(
-                "Kardiologiya", "Ürək və damar xəstəlikləri şöbəsi",
-                "Nevrologiya", "Sinir sistemi xəstəlikləri şöbəsi",
-                "Pediatriya", "Uşaq xəstəlikləri şöbəsi",
-                "Daxili Xəstəliklər", "Daxili orqanların xəstəlikləri şöbəsi"
+    private void seedDoctors(Map<String, Department> depts) {
+        List<DoctorSeed> seeds = List.of(
+                // Kardiologiya (5)
+                d("Dr. Aysel Məmmədova", "Kardioloq, baş həkim",
+                        "10+ il təcrübəli kardioloq, EKQ və exo-kardioqrafiya üzrə mütəxəssis.",
+                        "Kardiologiya", img("1559839734-2b71ea197ec2")),
+                d("Dr. Nicat Babayev", "Kardioloq",
+                        "Ürək ritmi pozğunluqları, qan təzyiqi və əməliyyatdan sonrakı reabilitasiya.",
+                        "Kardiologiya", img("1612349317150-e413f6a5b16d")),
+                d("Dr. Elnur İsmayılov", "İnvaziv kardioloq",
+                        "Angiografiya, stent qoyulması və koroner damar müdaxilələri.",
+                        "Kardiologiya", img("1622253692010-333f2da6031d")),
+                d("Dr. Tahirə Şirinova", "Kardioloq-aritmoloq",
+                        "Aritmiya, sinkop və holter monitorinqi sahəsində ixtisaslaşıb.",
+                        "Kardiologiya", img("1594824476967-48c8b964273f")),
+                d("Dr. Vüsal Quliyev", "Kardioloq, profilaktika",
+                        "Profilaktik müayinələr, xolesterin və qan təzyiqi izləməsi.",
+                        "Kardiologiya", img("1537368910025-700350fe46c7")),
+
+                // Nevrologiya (3)
+                d("Dr. Rəşid Əliyev", "Nevroloq",
+                        "Baş ağrıları, miqren və yuxu pozğunluqları üzrə ixtisaslaşıb.",
+                        "Nevrologiya", img("1666214280557-f1b5022eb634")),
+                d("Dr. Səbinə Hacıyeva", "Nevroloq, EEG mütəxəssisi",
+                        "Epilepsiya, neyropatiya və insult sonrası reabilitasiya.",
+                        "Nevrologiya", img("1551601651-2a8555f1a136")),
+                d("Dr. Kamran Mustafayev", "Nevroloq, baş ağrıları mərkəzi rəhbəri",
+                        "Xroniki migren, cluster baş ağrıları və botoks terapiyası.",
+                        "Nevrologiya", img("1559757175-5700dde675bc")),
+
+                // Pediatriya (8)
+                d("Dr. Günay Hüseynova", "Pediatr",
+                        "Yenidoğulmuşdan yeniyetmə yaşa qədər uşaq sağlamlığı.",
+                        "Pediatriya", img("1582750433449-648ed127bb54")),
+                d("Dr. Murad Quliyev", "Pediatr, allerqoloq",
+                        "Uşaq allergiyaları, immun sistem və vaksinasiya məsləhəti.",
+                        "Pediatriya", img("1631217872822-1c2546d6b864")),
+                d("Dr. Aytac Rzayeva", "Yenidoğulmuş pediatr",
+                        "Yenidoğulmuş bakımı, prematür uşaqlar və erkən inkişaf.",
+                        "Pediatriya", img("1638202993928-7267aad84c31")),
+                d("Dr. Famil Əhmədov", "Pediatr-kardioloq",
+                        "Uşaqlarda anadangəlmə ürək qüsurları və exo-kardioqrafiya.",
+                        "Pediatriya", img("1551884170-09fb70a3a2ed")),
+                d("Dr. Lalə Səfərova", "Pediatr, infeksionist",
+                        "Uşaq infeksion xəstəlikləri, hepatit və ümumi viral xəstəliklər.",
+                        "Pediatriya", img("1607746882042-944635dfe10e")),
+                d("Dr. Orxan Bayramov", "Pediatr-nevroloq",
+                        "Uşaq epilepsiyası, beyin inkişafı və hərəkət pozğunluqları.",
+                        "Pediatriya", img("1606206522398-de6e2bcd2d09")),
+                d("Dr. Zərifə Cəfərli", "Pediatr-endokrinoloq",
+                        "Uşaq diabeti, böyümə hormonu və tiroid xəstəlikləri.",
+                        "Pediatriya", img("1530497610245-94d3c16cda28")),
+                d("Dr. Tural Kərimov", "Pediatr",
+                        "Ümumi pediatrik müayinə, profilaktik baxış və inkişaf izləməsi.",
+                        "Pediatriya", img("1576091160399-112ba8d25d1d")),
+
+                // Daxili Xəstəliklər (4)
+                d("Dr. Elvin Quliyev", "Daxili Xəstəliklər mütəxəssisi",
+                        "Hipertenziya, diabet və mədə-bağırsaq xəstəlikləri.",
+                        "Daxili Xəstəliklər", img("1602233158242-3ba0ac4d2167")),
+                d("Dr. Lalə Cəfərova", "Endokrinoloq",
+                        "Tiroid, diabet və hormonal balans pozğunluqları.",
+                        "Daxili Xəstəliklər", img("1614608682850-e0d6ed316d47")),
+                d("Dr. Sənan Əliyev", "Qastroenteroloq",
+                        "Mədə xorası, qastrit, qaraciyər xəstəlikləri və endoskopiya.",
+                        "Daxili Xəstəliklər", img("1559839734-2b71ea197ec2")),
+                d("Dr. Nigar Hüseynova", "Pulmonoloq",
+                        "Astma, bronxit və tənəffüs yolu xəstəlikləri.",
+                        "Daxili Xəstəliklər", img("1612531386530-97286d97c2d2"))
         );
 
-        Department kardio = saveDept("Kardiologiya", deptDescriptions.get("Kardiologiya"));
-        Department nevro = saveDept("Nevrologiya", deptDescriptions.get("Nevrologiya"));
-        Department pedia = saveDept("Pediatriya", deptDescriptions.get("Pediatriya"));
-        Department daxili = saveDept("Daxili Xəstəliklər", deptDescriptions.get("Daxili Xəstəliklər"));
-
-        List<Doctor> doctors = List.of(
-                doctor("Dr. Aysel Məmmədova", "Kardioloq, baş həkim",
-                        "10+ il təcrübəli kardioloq, EKQ və exo-kardioqrafiya üzrə mütəxəssis.", kardio),
-                doctor("Dr. Rəşid Əliyev", "Nevroloq",
-                        "Baş ağrıları, miqren və yuxu pozğunluqları üzrə ixtisaslaşıb.", nevro),
-                doctor("Dr. Günay Hüseynova", "Pediatr",
-                        "Yenidoğulmuşdan yeniyetmə yaşa qədər uşaq sağlamlığı.", pedia),
-                doctor("Dr. Elvin Quliyev", "Daxili Xəstəliklər mütəxəssisi",
-                        "Hipertenziya, diabet və mədə-bağırsaq xəstəlikləri.", daxili)
-        );
-        doctorRepository.saveAll(doctors);
+        for (DoctorSeed s : seeds) {
+            Optional<Doctor> existing = doctorRepository.findByFullName(s.fullName);
+            if (existing.isPresent()) {
+                // Avatar yoxdursa, doldur (geriyə uyğunluq)
+                Doctor d = existing.get();
+                if (d.getAvatarUrl() == null || d.getAvatarUrl().isBlank()) {
+                    d.setAvatarUrl(s.avatarUrl);
+                }
+            } else {
+                doctorRepository.save(Doctor.builder()
+                        .fullName(s.fullName)
+                        .specialization(s.specialization)
+                        .bio(s.bio)
+                        .avatarUrl(s.avatarUrl)
+                        .department(depts.get(s.deptName))
+                        .build());
+            }
+        }
     }
 
-    private Department saveDept(String name, String desc) {
-        return departmentRepository.save(Department.builder().name(name).description(desc).build());
+    private static DoctorSeed d(String name, String spec, String bio, String deptName, String avatarUrl) {
+        return new DoctorSeed(name, spec, bio, deptName, avatarUrl);
     }
 
-    private Doctor doctor(String name, String spec, String bio, Department dept) {
-        return Doctor.builder()
-                .fullName(name)
-                .specialization(spec)
-                .bio(bio)
-                .department(dept)
-                .build();
-    }
+    private record DoctorSeed(String fullName, String specialization, String bio,
+                              String deptName, String avatarUrl) { }
 }

@@ -16,4 +16,6 @@ public interface DoctorRepository extends JpaRepository<Doctor, Long> {
     List<Doctor> findAllWithDepartment();
 
     long countByDepartmentId(Long departmentId);
+
+    java.util.Optional<Doctor> findByFullName(String fullName);
 }
