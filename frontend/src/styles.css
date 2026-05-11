@@ -51,9 +51,24 @@ body {
   opacity: 0.4;
 }
 
+/* Sticky footer layout: main genişlənir, footer həmişə aşağıda */
+html, body, #root {
+  height: 100%;
+}
+
+.app-shell {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.app-main {
+  flex: 1 0 auto;
+}
+
 .app-footer {
-  margin-top: 3rem;
-  padding: 2rem 0;
+  flex-shrink: 0;
+  padding: 1.5rem 0;
   background: #fff;
   border-top: 1px solid #e6e9ef;
   color: #6c757d;
@@ -98,16 +113,16 @@ body {
 }
 
 .btn-pill-dark {
-  background: #1a1f3a;
+  background: #6610f2;
   color: #ffffff;
-  box-shadow: 0 2px 8px rgba(26, 31, 58, 0.35);
+  box-shadow: 0 2px 8px rgba(102, 16, 242, 0.35);
 }
 
 .btn-pill-dark:hover,
 .btn-pill-dark:focus {
-  background: #0f1428;
+  background: #520dc2;
   color: #ffffff;
-  box-shadow: 0 4px 16px rgba(26, 31, 58, 0.45);
+  box-shadow: 0 4px 16px rgba(102, 16, 242, 0.5);
 }
 
 .btn-pill-lg {

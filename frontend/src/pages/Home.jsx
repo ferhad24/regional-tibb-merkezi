@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import api, { extractError } from '../api/client.js';
 import { useAuth } from '../auth/AuthContext.jsx';
 import Alert from '../components/Alert.jsx';
@@ -57,20 +57,10 @@ export default function Home() {
             <i className="bi bi-heart-pulse me-2" />
             Sağlamlığınız bizim prioritetimizdir
           </h1>
-          <p className="lead mb-3 opacity-75">
+          <p className="lead mb-0 opacity-75">
             MediRegSys-də mütəxəssis həkimlərimiz və müasir avadanlıqlarla sizin
             xidmətinizdəyik. İndi onlayn növbə təyin edin.
           </p>
-          {!user && (
-            <div className="d-flex flex-wrap gap-2">
-              <Link to="/login" className="btn-pill btn-pill-light btn-pill-lg">
-                Daxil Ol
-              </Link>
-              <Link to="/register" className="btn-pill btn-pill-dark btn-pill-lg">
-                Qeydiyyat
-              </Link>
-            </div>
-          )}
         </div>
       </section>
 
