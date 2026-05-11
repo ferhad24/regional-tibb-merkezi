@@ -1,15 +1,14 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import api, { extractError } from '../api/client.js';
+import api from '../api/client.js';
 import { useAuth } from '../auth/AuthContext.jsx';
-import Alert from '../components/Alert.jsx';
+import { STATIC_DEPARTMENTS, STATIC_DOCTORS } from '../data/staticDoctors.js';
 
 export default function Home() {
-  const [doctors, setDoctors] = useState([]);
-  const [departments, setDepartments] = useState([]);
+  const [doctors, setDoctors] = useState(STATIC_DOCTORS);
+  const [departments, setDepartments] = useState(STATIC_DEPARTMENTS);
   const [filter, setFilter] = useState('all');
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(false);
   const { isPatient, user } = useAuth();
   const navigate = useNavigate();
 
@@ -19,14 +18,16 @@ export default function Home() {
       api.get('/public/doctors'),
     ])
       .then(([deptRes, docRes]) => {
-        setDepartments(Array.isArray(deptRes.data) ? deptRes.data : []);
-        setDoctors(Array.isArray(docRes.data) ? docRes.data : []);
-        if (!Array.isArray(docRes.data)) {
-          setError('Backend-dən gözlənilməyən cavab gəldi. VITE_API_BASE_URL düzgün təyin olunubmu?');
+        if (Array.isArray(deptRes.data) && deptRes.data.length > 0) {
+          setDepartments(deptRes.data);
+        }
+        if (Array.isArray(docRes.data) && docRes.data.length > 0) {
+          setDoctors(docRes.data);
         }
       })
-      .catch((err) => setError(extractError(err)))
-      .finally(() => setLoading(false));
+      .catch(() => {
+        // Backend yoxdur ya da xeta verir - statik fallback istifade olunur
+      });
   }, []);
 
   const filteredDoctors =
@@ -65,8 +66,6 @@ export default function Home() {
       </section>
 
       <div className="container pb-5">
-        {error && <Alert type="danger" onClose={() => setError(null)}>{error}</Alert>}
-
         <div className="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
           <h2 className="mb-0">
             <i className="bi bi-people me-2 text-primary" />
@@ -85,13 +84,7 @@ export default function Home() {
           </select>
         </div>
 
-        {loading && (
-          <div className="text-center py-5">
-            <div className="spinner-border text-primary" role="status" />
-          </div>
-        )}
-
-        {!loading && Object.keys(grouped).length === 0 && (
+        {Object.keys(grouped).length === 0 && (
           <div className="empty-state">
             <i className="bi bi-emoji-frown" />
             <p className="mt-3">Hələlik həkim əlavə edilməyib</p>
