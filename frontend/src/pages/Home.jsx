@@ -72,7 +72,7 @@ export default function Home() {
             Həkimlərimiz
           </h2>
           <select
-            className="form-select"
+            className="form-select select-pretty"
             style={{ maxWidth: 280 }}
             value={filter}
             onChange={(e) => setFilter(e.target.value)}
@@ -104,15 +104,27 @@ export default function Home() {
                 <div className="col-md-6 col-lg-4" key={doc.id}>
                   <div className="card doctor-card h-100">
                     <div className="card-body">
-                      <h5 className="card-title">
-                        <i className="bi bi-person-badge me-1 text-primary" />
-                        {doc.fullName}
-                      </h5>
-                      <p className="text-muted mb-2 small">
-                        <i className="bi bi-mortarboard me-1" />
-                        {doc.specialization}
-                      </p>
-                      {doc.bio && <p className="card-text small">{doc.bio}</p>}
+                      <div className="d-flex align-items-center mb-3">
+                        {doc.avatarUrl ? (
+                          <img
+                            src={doc.avatarUrl}
+                            alt={doc.fullName}
+                            className="doctor-avatar me-3"
+                            loading="lazy"
+                          />
+                        ) : (
+                          <span className="doctor-avatar-fallback me-3">
+                            <i className="bi bi-person-fill" />
+                          </span>
+                        )}
+                        <div className="flex-grow-1">
+                          <h5 className="card-title mb-1">{doc.fullName}</h5>
+                          <p className="text-primary mb-0 small fw-semibold">
+                            {doc.specialization}
+                          </p>
+                        </div>
+                      </div>
+                      {doc.bio && <p className="card-text small text-muted mb-0">{doc.bio}</p>}
                     </div>
                     <div className="card-footer bg-white border-0 pb-3">
                       <button

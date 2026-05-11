@@ -1,5 +1,6 @@
 // Backend olmadiqda gosterilen statik fallback verileri.
 // Backend qosulduqda real data ile evezlenir.
+// Sekiller: randomuser.me (pulsuz, CC0 lisenziyali professional headshot-lar)
 
 export const STATIC_DEPARTMENTS = [
   { id: 1, name: 'Kardiologiya', description: 'Ürək və damar xəstəlikləri şöbəsi' },
@@ -8,7 +9,10 @@ export const STATIC_DEPARTMENTS = [
   { id: 4, name: 'Daxili Xəstəliklər', description: 'Daxili orqanların xəstəlikləri şöbəsi' },
 ];
 
+const img = (gender, n) => `https://randomuser.me/api/portraits/${gender}/${n}.jpg`;
+
 export const STATIC_DOCTORS = [
+  // Kardiologiya (5)
   {
     id: 1,
     fullName: 'Dr. Aysel Məmmədova',
@@ -16,6 +20,7 @@ export const STATIC_DOCTORS = [
     bio: '10+ il təcrübəli kardioloq, EKQ və exo-kardioqrafiya üzrə mütəxəssis.',
     departmentId: 1,
     departmentName: 'Kardiologiya',
+    avatarUrl: img('women', 65),
   },
   {
     id: 2,
@@ -24,53 +29,174 @@ export const STATIC_DOCTORS = [
     bio: 'Ürək ritmi pozğunluqları, qan təzyiqi və əməliyyatdan sonrakı reabilitasiya.',
     departmentId: 1,
     departmentName: 'Kardiologiya',
+    avatarUrl: img('men', 32),
   },
   {
     id: 3,
+    fullName: 'Dr. Elnur İsmayılov',
+    specialization: 'İnvaziv kardioloq',
+    bio: 'Angiografiya, stent qoyulması və koroner damar müdaxilələri.',
+    departmentId: 1,
+    departmentName: 'Kardiologiya',
+    avatarUrl: img('men', 47),
+  },
+  {
+    id: 4,
+    fullName: 'Dr. Tahirə Şirinova',
+    specialization: 'Kardioloq-aritmoloq',
+    bio: 'Aritmiya, sinkop və holter monitorinqi sahəsində ixtisaslaşıb.',
+    departmentId: 1,
+    departmentName: 'Kardiologiya',
+    avatarUrl: img('women', 41),
+  },
+  {
+    id: 5,
+    fullName: 'Dr. Vüsal Quliyev',
+    specialization: 'Kardioloq, profilaktika',
+    bio: 'Profilaktik müayinələr, xolesterin və qan təzyiqi izləməsi.',
+    departmentId: 1,
+    departmentName: 'Kardiologiya',
+    avatarUrl: img('men', 15),
+  },
+
+  // Nevrologiya (3)
+  {
+    id: 6,
     fullName: 'Dr. Rəşid Əliyev',
     specialization: 'Nevroloq',
     bio: 'Baş ağrıları, miqren və yuxu pozğunluqları üzrə ixtisaslaşıb.',
     departmentId: 2,
     departmentName: 'Nevrologiya',
+    avatarUrl: img('men', 22),
   },
   {
-    id: 4,
+    id: 7,
     fullName: 'Dr. Səbinə Hacıyeva',
     specialization: 'Nevroloq, EEG mütəxəssisi',
     bio: 'Epilepsiya, neyropatiya və insult sonrası reabilitasiya.',
     departmentId: 2,
     departmentName: 'Nevrologiya',
+    avatarUrl: img('women', 29),
   },
   {
-    id: 5,
+    id: 8,
+    fullName: 'Dr. Kamran Mustafayev',
+    specialization: 'Nevroloq, baş ağrıları mərkəzi rəhbəri',
+    bio: 'Xroniki migren, cluster baş ağrıları və botoks terapiyası.',
+    departmentId: 2,
+    departmentName: 'Nevrologiya',
+    avatarUrl: img('men', 55),
+  },
+
+  // Pediatriya (8 - en cox)
+  {
+    id: 9,
     fullName: 'Dr. Günay Hüseynova',
     specialization: 'Pediatr',
     bio: 'Yenidoğulmuşdan yeniyetmə yaşa qədər uşaq sağlamlığı.',
     departmentId: 3,
     departmentName: 'Pediatriya',
+    avatarUrl: img('women', 12),
   },
   {
-    id: 6,
+    id: 10,
     fullName: 'Dr. Murad Quliyev',
     specialization: 'Pediatr, allerqoloq',
     bio: 'Uşaq allergiyaları, immun sistem və vaksinasiya məsləhəti.',
     departmentId: 3,
     departmentName: 'Pediatriya',
+    avatarUrl: img('men', 18),
   },
   {
-    id: 7,
+    id: 11,
+    fullName: 'Dr. Aytac Rzayeva',
+    specialization: 'Yenidoğulmuş pediatr',
+    bio: 'Yenidoğulmuş bakımı, prematür uşaqlar və erkən inkişaf.',
+    departmentId: 3,
+    departmentName: 'Pediatriya',
+    avatarUrl: img('women', 52),
+  },
+  {
+    id: 12,
+    fullName: 'Dr. Famil Əhmədov',
+    specialization: 'Pediatr-kardioloq',
+    bio: 'Uşaqlarda anadangəlmə ürək qüsurları və exo-kardioqrafiya.',
+    departmentId: 3,
+    departmentName: 'Pediatriya',
+    avatarUrl: img('men', 38),
+  },
+  {
+    id: 13,
+    fullName: 'Dr. Lalə Səfərova',
+    specialization: 'Pediatr, infeksionist',
+    bio: 'Uşaq infeksion xəstəlikləri, hepatit və ümumi viral xəstəliklər.',
+    departmentId: 3,
+    departmentName: 'Pediatriya',
+    avatarUrl: img('women', 19),
+  },
+  {
+    id: 14,
+    fullName: 'Dr. Orxan Bayramov',
+    specialization: 'Pediatr-nevroloq',
+    bio: 'Uşaq epilepsiyası, beyin inkişafı və hərəkət pozğunluqları.',
+    departmentId: 3,
+    departmentName: 'Pediatriya',
+    avatarUrl: img('men', 71),
+  },
+  {
+    id: 15,
+    fullName: 'Dr. Zərifə Cəfərli',
+    specialization: 'Pediatr-endokrinoloq',
+    bio: 'Uşaq diabeti, böyümə hormonu və tiroid xəstəlikləri.',
+    departmentId: 3,
+    departmentName: 'Pediatriya',
+    avatarUrl: img('women', 76),
+  },
+  {
+    id: 16,
+    fullName: 'Dr. Tural Kərimov',
+    specialization: 'Pediatr',
+    bio: 'Ümumi pediatrik müayinə, profilaktik baxış və inkişaf izləməsi.',
+    departmentId: 3,
+    departmentName: 'Pediatriya',
+    avatarUrl: img('men', 82),
+  },
+
+  // Daxili Xəstəliklər (4)
+  {
+    id: 17,
     fullName: 'Dr. Elvin Quliyev',
     specialization: 'Daxili Xəstəliklər mütəxəssisi',
     bio: 'Hipertenziya, diabet və mədə-bağırsaq xəstəlikləri.',
     departmentId: 4,
     departmentName: 'Daxili Xəstəliklər',
+    avatarUrl: img('men', 8),
   },
   {
-    id: 8,
+    id: 18,
     fullName: 'Dr. Lalə Cəfərova',
     specialization: 'Endokrinoloq',
     bio: 'Tiroid, diabet və hormonal balans pozğunluqları.',
     departmentId: 4,
     departmentName: 'Daxili Xəstəliklər',
+    avatarUrl: img('women', 8),
+  },
+  {
+    id: 19,
+    fullName: 'Dr. Sənan Əliyev',
+    specialization: 'Qastroenteroloq',
+    bio: 'Mədə xorası, qastrit, qaraciyər xəstəlikləri və endoskopiya.',
+    departmentId: 4,
+    departmentName: 'Daxili Xəstəliklər',
+    avatarUrl: img('men', 64),
+  },
+  {
+    id: 20,
+    fullName: 'Dr. Nigar Hüseynova',
+    specialization: 'Pulmonoloq',
+    bio: 'Astma, bronxit və tənəffüs yolu xəstəlikləri.',
+    departmentId: 4,
+    departmentName: 'Daxili Xəstəliklər',
+    avatarUrl: img('women', 33),
   },
 ];
