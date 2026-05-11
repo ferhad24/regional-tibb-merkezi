@@ -27,9 +27,6 @@ export default function Navbar() {
         </button>
         <div className="collapse navbar-collapse" id="mainNav">
           <ul className="navbar-nav me-auto">
-            <li className="nav-item">
-              <NavLink className="nav-link" to="/" end>Ana Səhifə</NavLink>
-            </li>
             {isPatient && (
               <li className="nav-item">
                 <NavLink className="nav-link" to="/dashboard">Şəxsi Kabinet</NavLink>

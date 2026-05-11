@@ -113,16 +113,16 @@ html, body, #root {
 }
 
 .btn-pill-dark {
-  background: #6610f2;
+  background: #0a4ba8;
   color: #ffffff;
-  box-shadow: 0 2px 8px rgba(102, 16, 242, 0.35);
+  box-shadow: 0 2px 8px rgba(10, 75, 168, 0.35);
 }
 
 .btn-pill-dark:hover,
 .btn-pill-dark:focus {
-  background: #520dc2;
+  background: #083a86;
   color: #ffffff;
-  box-shadow: 0 4px 16px rgba(102, 16, 242, 0.5);
+  box-shadow: 0 4px 16px rgba(10, 75, 168, 0.5);
 }
 
 .btn-pill-lg {
