@@ -2,34 +2,32 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../api/client.js';
 import { useAuth } from '../auth/AuthContext.jsx';
-import { STATIC_DEPARTMENTS, STATIC_DOCTORS } from '../data/staticDoctors.js';
 import DoctorAvatar from '../components/DoctorAvatar.jsx';
 import PrettyDropdown from '../components/PrettyDropdown.jsx';
 
 export default function Home() {
-  const [doctors, setDoctors] = useState(STATIC_DOCTORS);
-  const [departments, setDepartments] = useState(STATIC_DEPARTMENTS);
+  const [doctors, setDoctors] = useState([]);
+  const [departments, setDepartments] = useState([]);
   const [filter, setFilter] = useState('all');
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
   const { isPatient, user } = useAuth();
   const navigate = useNavigate();
 
   useEffect(() => {
+    setLoading(true);
     Promise.all([
       api.get('/public/departments'),
       api.get('/public/doctors'),
     ])
       .then(([deptRes, docRes]) => {
-        if (Array.isArray(deptRes.data) && deptRes.data.length > 0) {
-          setDepartments(deptRes.data);
-        }
-        if (Array.isArray(docRes.data) && docRes.data.length > 0) {
-          setDoctors(docRes.data);
-        }
+        setDepartments(Array.isArray(deptRes.data) ? deptRes.data : []);
+        setDoctors(Array.isArray(docRes.data) ? docRes.data : []);
       })
       .catch(() => {
-        // Backend yoxdur ya da xeta verir - statik fallback istifade olunur
-      });
+        setError(true);
+      })
+      .finally(() => setLoading(false));
   }, []);
 
   const filteredDoctors =
@@ -85,7 +83,23 @@ export default function Home() {
           </div>
         </div>
 
-        {Object.keys(grouped).length === 0 && (
+        {loading && (
+          <div className="empty-state">
+            <div className="spinner-border text-primary" role="status">
+              <span className="visually-hidden">Yüklənir...</span>
+            </div>
+            <p className="mt-3">Həkimlər yüklənir...</p>
+          </div>
+        )}
+
+        {!loading && error && (
+          <div className="empty-state">
+            <i className="bi bi-exclamation-triangle text-warning" />
+            <p className="mt-3">Server hazırda əlçatan deyil. Bir azdan yenidən cəhd edin.</p>
+          </div>
+        )}
+
+        {!loading && !error && Object.keys(grouped).length === 0 && (
           <div className="empty-state">
             <i className="bi bi-emoji-frown" />
             <p className="mt-3">Hələlik həkim əlavə edilməyib</p>

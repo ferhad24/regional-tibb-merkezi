@@ -14,7 +14,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -37,12 +37,13 @@ public class DataInitializer implements CommandLineRunner {
     @Value("${app.admin.email}")
     private String adminEmail;
 
-    private static final Map<String, String> DEPT_DESC = Map.of(
-            "Kardiologiya", "Ürək və damar xəstəlikləri şöbəsi",
-            "Nevrologiya", "Sinir sistemi xəstəlikləri şöbəsi",
-            "Pediatriya", "Uşaq xəstəlikləri şöbəsi",
-            "Daxili Xəstəliklər", "Daxili orqanların xəstəlikləri şöbəsi"
-    );
+    private static final Map<String, String> DEPT_DESC = new LinkedHashMap<>();
+    static {
+        DEPT_DESC.put("Kardiologiya", "Ürək və damar xəstəlikləri şöbəsi");
+        DEPT_DESC.put("Nevrologiya", "Sinir sistemi xəstəlikləri şöbəsi");
+        DEPT_DESC.put("Pediatriya", "Uşaq xəstəlikləri şöbəsi");
+        DEPT_DESC.put("Daxili Xəstəliklər", "Daxili orqanların xəstəlikləri şöbəsi");
+    }
 
     private static String img(String id) {
         return "https://images.unsplash.com/photo-" + id
@@ -73,13 +74,23 @@ public class DataInitializer implements CommandLineRunner {
     }
 
     private Map<String, Department> ensureDepartments() {
-        Map<String, Department> result = new HashMap<>();
+        Map<String, Department> result = new LinkedHashMap<>();
+        int order = 1;
         for (String name : DEPT_DESC.keySet()) {
+            final int currentOrder = order++;
             Department d = departmentRepository.findByNameIgnoreCase(name)
+                    .map(existing -> {
+                        if (existing.getDisplayOrder() == null
+                                || existing.getDisplayOrder() != currentOrder) {
+                            existing.setDisplayOrder(currentOrder);
+                        }
+                        return existing;
+                    })
                     .orElseGet(() -> departmentRepository.save(
                             Department.builder()
                                     .name(name)
                                     .description(DEPT_DESC.get(name))
+                                    .displayOrder(currentOrder)
                                     .build()
                     ));
             result.put(name, d);
@@ -152,7 +163,7 @@ public class DataInitializer implements CommandLineRunner {
                         "Daxili Xəstəliklər", img("1614608682850-e0d6ed316d47")),
                 d("Dr. Sənan Əliyev", "Qastroenteroloq",
                         "Mədə xorası, qastrit, qaraciyər xəstəlikləri və endoskopiya.",
-                        "Daxili Xəstəliklər", img("1559839734-2b71ea197ec2")),
+                        "Daxili Xəstəliklər", img("1612349317150-e413f6a5b16d")),
                 d("Dr. Nigar Hüseynova", "Pulmonoloq",
                         "Astma, bronxit və tənəffüs yolu xəstəlikləri.",
                         "Daxili Xəstəliklər", img("1612531386530-97286d97c2d2"))
@@ -161,11 +172,11 @@ public class DataInitializer implements CommandLineRunner {
         for (DoctorSeed s : seeds) {
             Optional<Doctor> existing = doctorRepository.findByFullName(s.fullName);
             if (existing.isPresent()) {
-                // Avatar yoxdursa, doldur (geriyə uyğunluq)
                 Doctor d = existing.get();
-                if (d.getAvatarUrl() == null || d.getAvatarUrl().isBlank()) {
-                    d.setAvatarUrl(s.avatarUrl);
-                }
+                d.setSpecialization(s.specialization);
+                d.setBio(s.bio);
+                d.setAvatarUrl(s.avatarUrl);
+                d.setDepartment(depts.get(s.deptName));
             } else {
                 doctorRepository.save(Doctor.builder()
                         .fullName(s.fullName)

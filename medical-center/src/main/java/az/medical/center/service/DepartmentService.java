@@ -19,7 +19,7 @@ public class DepartmentService {
 
     @Transactional(readOnly = true)
     public List<Department> findAll() {
-        return departmentRepository.findAllByOrderByNameAsc();
+        return departmentRepository.findAllByOrderByIdAsc();
     }
 
     @Transactional(readOnly = true)

@@ -25,6 +25,9 @@ public class Department {
     @Column(length = 500)
     private String description;
 
+    @Column(name = "display_order")
+    private Integer displayOrder;
+
     @OneToMany(mappedBy = "department", fetch = FetchType.LAZY)
     @ToString.Exclude
     @EqualsAndHashCode.Exclude

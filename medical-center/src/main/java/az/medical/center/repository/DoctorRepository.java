@@ -12,7 +12,9 @@ public interface DoctorRepository extends JpaRepository<Doctor, Long> {
 
     List<Doctor> findByDepartmentId(Long departmentId);
 
-    @Query("SELECT d FROM Doctor d JOIN FETCH d.department ORDER BY d.department.name ASC, d.fullName ASC")
+    @Query("SELECT d FROM Doctor d JOIN FETCH d.department dept ORDER BY " +
+           "CASE WHEN dept.displayOrder IS NULL THEN 1 ELSE 0 END, " +
+           "dept.displayOrder ASC, dept.name ASC, d.fullName ASC")
     List<Doctor> findAllWithDepartment();
 
     long countByDepartmentId(Long departmentId);
