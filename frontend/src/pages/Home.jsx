@@ -62,13 +62,12 @@ export default function Home() {
             xidmətinizdəyik. İndi onlayn növbə təyin edin.
           </p>
           {!user && (
-            <div>
-              <Link to="/register" className="btn btn-light btn-lg me-2">
-                <i className="bi bi-person-plus me-1" />
-                Qeydiyyatdan keç
+            <div className="d-flex flex-wrap gap-2">
+              <Link to="/login" className="btn-pill btn-pill-light btn-pill-lg">
+                Daxil Ol
               </Link>
-              <Link to="/login" className="btn btn-outline-light btn-lg">
-                Daxil ol
+              <Link to="/register" className="btn-pill btn-pill-dark btn-pill-lg">
+                Qeydiyyat
               </Link>
             </div>
           )}

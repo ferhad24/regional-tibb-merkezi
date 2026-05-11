@@ -44,11 +44,13 @@ export default function Navbar() {
           <ul className="navbar-nav">
             {!user && (
               <>
-                <li className="nav-item">
-                  <NavLink className="nav-link" to="/login">Daxil Ol</NavLink>
+                <li className="nav-item d-flex align-items-center me-2">
+                  <NavLink className="btn-pill btn-pill-light" to="/login">
+                    Daxil Ol
+                  </NavLink>
                 </li>
-                <li className="nav-item">
-                  <NavLink className="btn btn-light btn-sm ms-2 mt-1" to="/register">
+                <li className="nav-item d-flex align-items-center">
+                  <NavLink className="btn-pill btn-pill-dark" to="/register">
                     Qeydiyyat
                   </NavLink>
                 </li>

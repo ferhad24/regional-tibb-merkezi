@@ -59,3 +59,58 @@ body {
   color: #6c757d;
   text-align: center;
 }
+
+/* Pill düymələr (Log In / Sign Up dizaynına əsasən, sayt rənglərinə uyğunlaşdırılıb) */
+.btn-pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.5rem 1.4rem;
+  border-radius: 999px;
+  font-weight: 600;
+  font-size: 0.95rem;
+  letter-spacing: 0.01em;
+  text-decoration: none;
+  border: 0;
+  transition: transform 0.15s ease, box-shadow 0.2s ease, background 0.2s ease, color 0.2s ease;
+  white-space: nowrap;
+}
+
+.btn-pill:hover {
+  transform: translateY(-1px);
+}
+
+.btn-pill:active {
+  transform: translateY(0);
+}
+
+.btn-pill-light {
+  background: #ffffff;
+  color: #0d6efd;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.btn-pill-light:hover,
+.btn-pill-light:focus {
+  background: #f1f5ff;
+  color: #0a58ca;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.12);
+}
+
+.btn-pill-dark {
+  background: #1a1f3a;
+  color: #ffffff;
+  box-shadow: 0 2px 8px rgba(26, 31, 58, 0.35);
+}
+
+.btn-pill-dark:hover,
+.btn-pill-dark:focus {
+  background: #0f1428;
+  color: #ffffff;
+  box-shadow: 0 4px 16px rgba(26, 31, 58, 0.45);
+}
+
+.btn-pill-lg {
+  padding: 0.75rem 1.8rem;
+  font-size: 1.05rem;
+}
