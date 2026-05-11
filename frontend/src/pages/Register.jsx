@@ -29,14 +29,13 @@ function sanitizePhone(raw) {
   let v = raw || '';
   // Bütün hərf və digər simvolları çıxar (+ və rəqəm qalsın)
   v = v.replace(/[^\d+]/g, '');
-  // +994 prefiksini məcburi qoy
   if (v.startsWith(PHONE_PREFIX)) {
-    v = PHONE_PREFIX + v.slice(PHONE_PREFIX.length).replace(/\D/g, '');
+    // Prefiksdən sonra yalnız rəqəm icazəlidir
+    const suffix = v.slice(PHONE_PREFIX.length).replace(/\D/g, '');
+    v = PHONE_PREFIX + suffix;
   } else {
-    // İstifadəçi prefiksi silmək istəyibsə, geri qoy
-    const digits = v.replace(/\D/g, '');
-    const stripped = digits.startsWith('994') ? digits.slice(3) : digits;
-    v = PHONE_PREFIX + stripped;
+    // Prefiksə toxunulub - sadəcə +994-ə qaytar, əlavə rəqəm yapışdırma
+    v = PHONE_PREFIX;
   }
   if (v.length > PHONE_MAX) v = v.slice(0, PHONE_MAX);
   return v;
@@ -92,9 +91,40 @@ export default function Register() {
 
   // Telefon focus oldugda kursoru rəqəm hissəsinə qoy ki istifadəçi +994-ü silməsin
   const handlePhoneFocus = (e) => {
-    const len = e.target.value.length;
-    // Kursoru sonuna apar
-    setTimeout(() => e.target.setSelectionRange(len, len), 0);
+    const input = e.target;
+    const len = input.value.length;
+    setTimeout(() => {
+      const start = input.selectionStart ?? 0;
+      if (start < PHONE_PREFIX.length) {
+        input.setSelectionRange(len, len);
+      }
+    }, 0);
+  };
+
+  // Backspace/Delete prefiksə dəyəndə qarşısını al
+  const handlePhoneKeyDown = (e) => {
+    if (e.key !== 'Backspace' && e.key !== 'Delete') return;
+    const input = e.target;
+    const start = input.selectionStart ?? 0;
+    const end = input.selectionEnd ?? 0;
+    // Backspace: kursor +994-un içində və ya hemen yanında
+    if (e.key === 'Backspace' && start === end && start <= PHONE_PREFIX.length) {
+      e.preventDefault();
+      input.setSelectionRange(PHONE_PREFIX.length, PHONE_PREFIX.length);
+    }
+    // Delete: kursor +994-un içində
+    if (e.key === 'Delete' && start === end && start < PHONE_PREFIX.length) {
+      e.preventDefault();
+      input.setSelectionRange(PHONE_PREFIX.length, PHONE_PREFIX.length);
+    }
+  };
+
+  // Mouse klikdə kursor prefiksə girərsə, geri itələ
+  const handlePhoneClick = (e) => {
+    const input = e.target;
+    if ((input.selectionStart ?? 0) < PHONE_PREFIX.length) {
+      input.setSelectionRange(PHONE_PREFIX.length, input.value.length);
+    }
   };
 
   const handleBlur = (e) => {
@@ -187,8 +217,10 @@ export default function Register() {
                   value={form.phone}
                   onChange={handlePhoneChange}
                   onFocus={handlePhoneFocus}
+                  onClick={handlePhoneClick}
+                  onKeyDown={handlePhoneKeyDown}
                   onBlur={handleBlur}
-                  inputMode="tel"
+                  inputMode="numeric"
                   autoComplete="tel"
                   maxLength={PHONE_MAX}
                 />
