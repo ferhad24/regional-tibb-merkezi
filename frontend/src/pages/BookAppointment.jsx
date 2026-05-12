@@ -2,8 +2,15 @@ import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import api, { extractError } from '../api/client.js';
 import Alert from '../components/Alert.jsx';
+import PrettyDatePicker from '../components/PrettyDatePicker.jsx';
 
-const todayIso = () => new Date().toISOString().split('T')[0];
+const todayIso = () => {
+  const d = new Date();
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${y}-${m}-${day}`;
+};
 
 export default function BookAppointment() {
   const { doctorId } = useParams();
@@ -21,7 +28,11 @@ export default function BookAppointment() {
   useEffect(() => {
     api
       .get(`/public/doctors/${doctorId}`)
-      .then((res) => setDoctor(res.data))
+      .then((res) => {
+        // /public/doctors/{id} indi DoctorDetailResponse qaytarır → { doctor, reviews, myReview }
+        const d = res.data?.doctor || res.data;
+        setDoctor(d);
+      })
       .catch((err) => setError(extractError(err)));
   }, [doctorId]);
 
@@ -62,18 +73,21 @@ export default function BookAppointment() {
   return (
     <div className="container py-5">
       <div className="row justify-content-center">
-        <div className="col-md-8 col-lg-7">
-          <div className="card shadow-sm border-0">
+        <div className="col-md-9 col-lg-7">
+          <div className="card shadow-sm border-0 book-card">
             <div className="card-body p-4">
-              <h3 className="mb-1">
+              <h3 className="mb-1 text-center">
                 <i className="bi bi-calendar-plus me-2 text-primary" />
                 Növbə təyini
               </h3>
-              {doctor && (
-                <p className="text-muted mb-4">
+              {doctor && doctor.fullName && (
+                <p className="text-muted mb-4 text-center">
                   <i className="bi bi-person-badge me-1" />
-                  <strong>{doctor.fullName}</strong> — {doctor.specialization}
-                  <span className="ms-2 badge text-bg-light">{doctor.departmentName}</span>
+                  <strong>{doctor.fullName}</strong>
+                  {doctor.specialization ? <> — {doctor.specialization}</> : null}
+                  {doctor.departmentName && (
+                    <span className="ms-2 badge text-bg-light">{doctor.departmentName}</span>
+                  )}
                 </p>
               )}
 
@@ -81,19 +95,16 @@ export default function BookAppointment() {
 
               <form onSubmit={handleSubmit}>
                 <div className="mb-3">
-                  <label className="form-label">Tarix</label>
-                  <input
-                    type="date"
-                    className="form-control"
-                    min={todayIso()}
+                  <label className="form-label fw-semibold">Tarix</label>
+                  <PrettyDatePicker
                     value={date}
-                    onChange={(e) => setDate(e.target.value)}
-                    required
+                    onChange={setDate}
+                    minDate={todayIso()}
                   />
                 </div>
 
                 <div className="mb-3">
-                  <label className="form-label">Vaxt</label>
+                  <label className="form-label fw-semibold">Vaxt</label>
                   {loadingSlots ? (
                     <div className="text-muted small">
                       <div className="spinner-border spinner-border-sm me-2" />
@@ -104,12 +115,12 @@ export default function BookAppointment() {
                       Bu tarixə boş slot yoxdur. Başqa tarix seçin.
                     </div>
                   ) : (
-                    <div className="d-flex flex-wrap gap-2">
+                    <div className="time-slot-grid">
                       {slots.map((s) => (
                         <button
                           type="button"
                           key={s}
-                          className={`btn btn-sm ${time === s ? 'btn-primary' : 'btn-outline-primary'}`}
+                          className={`time-slot ${time === s ? 'active' : ''}`}
                           onClick={() => setTime(s)}
                         >
                           {s}
@@ -120,18 +131,19 @@ export default function BookAppointment() {
                 </div>
 
                 <div className="mb-3">
-                  <label className="form-label">Qeyd (opsional)</label>
+                  <label className="form-label fw-semibold">Qeyd (opsional)</label>
                   <textarea
                     className="form-control"
                     rows={3}
                     maxLength={500}
                     value={notes}
                     onChange={(e) => setNotes(e.target.value)}
+                    placeholder="Şikayət, simptomlar və ya əlavə qeydləriniz..."
                   />
                 </div>
 
-                <div className="d-flex gap-2">
-                  <button type="submit" className="btn btn-primary" disabled={submitting || !time}>
+                <div className="d-flex gap-2 mt-4">
+                  <button type="submit" className="btn btn-primary flex-grow-1" disabled={submitting || !time}>
                     {submitting ? 'Göndərilir...' : 'Növbəni təsdiqlə'}
                   </button>
                   <button type="button" className="btn btn-outline-secondary" onClick={() => navigate(-1)}>

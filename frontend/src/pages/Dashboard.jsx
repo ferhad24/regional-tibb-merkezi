@@ -88,7 +88,7 @@ export default function Dashboard() {
                       <td>{a.doctorName}</td>
                       <td>{a.departmentName}</td>
                       <td>
-                        <span className={`badge text-bg-light status-badge-${a.status}`} style={{ color: 'white' }}>
+                        <span className={`badge status-badge-${a.status}`}>
                           {STATUS_LABELS[a.status] || a.status}
                         </span>
                       </td>

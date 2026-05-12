@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import api, { extractError } from '../../api/client.js';
 import Alert from '../../components/Alert.jsx';
+import PrettyDropdown from '../../components/PrettyDropdown.jsx';
 
 const STATUS_LABELS = {
   BOOKED: 'Aktiv',
@@ -46,17 +47,18 @@ export default function AdminAppointments() {
           <i className="bi bi-calendar-week me-2 text-primary" />
           Bütün Növbələr
         </h2>
-        <select
-          className="form-select"
-          style={{ maxWidth: 220 }}
-          value={filter}
-          onChange={(e) => setFilter(e.target.value)}
-        >
-          <option value="ALL">Hamısı</option>
-          <option value="BOOKED">Aktiv</option>
-          <option value="CANCELLED">Ləğv edilmiş</option>
-          <option value="COMPLETED">Tamamlanmış</option>
-        </select>
+        <div style={{ width: 280 }}>
+          <PrettyDropdown
+            value={filter}
+            onChange={setFilter}
+            options={[
+              { value: 'ALL', label: 'Hamısı' },
+              { value: 'BOOKED', label: 'Aktiv' },
+              { value: 'CANCELLED', label: 'Ləğv edilmiş' },
+              { value: 'COMPLETED', label: 'Tamamlanmış' },
+            ]}
+          />
+        </div>
       </div>
 
       {error && <Alert type="danger" onClose={() => setError(null)}>{error}</Alert>}
@@ -96,7 +98,7 @@ export default function AdminAppointments() {
                       <td>{a.doctorName}</td>
                       <td>{a.departmentName}</td>
                       <td>
-                        <span className={`badge text-bg-light status-badge-${a.status}`} style={{ color: 'white' }}>
+                        <span className={`badge status-badge-${a.status}`}>
                           {STATUS_LABELS[a.status] || a.status}
                         </span>
                       </td>

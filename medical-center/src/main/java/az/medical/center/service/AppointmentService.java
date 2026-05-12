@@ -86,7 +86,9 @@ public class AppointmentService {
                 .build();
 
         try {
-            return appointmentRepository.save(appointment);
+            Appointment saved = appointmentRepository.save(appointment);
+            // Bütün lazy əlaqələri JOIN FETCH ilə yenidən yüklə ki, controller DTO-ya çevirə bilsin
+            return appointmentRepository.findByIdWithDetails(saved.getId()).orElse(saved);
         } catch (DataIntegrityViolationException ex) {
             throw new IllegalStateException("Bu vaxt artıq başqası tərəfindən tutuldu, başqa slot seçin");
         }

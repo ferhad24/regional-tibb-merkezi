@@ -37,9 +37,42 @@ body {
   font-size: 1.5rem;
 }
 
-.status-badge-BOOKED { background-color: #198754; }
-.status-badge-CANCELLED { background-color: #6c757d; }
-.status-badge-COMPLETED { background-color: #0dcaf0; color: #000 !important; }
+.status-badge-BOOKED {
+  background-color: rgba(25, 135, 84, 0.15);
+  color: #146c43;
+  border: 1px solid rgba(25, 135, 84, 0.3);
+}
+.status-badge-CANCELLED {
+  background-color: rgba(220, 53, 69, 0.15);
+  color: #b02a37;
+  border: 1px solid rgba(220, 53, 69, 0.3);
+}
+.status-badge-COMPLETED {
+  background-color: rgba(13, 202, 240, 0.18);
+  color: #055160;
+  border: 1px solid rgba(13, 202, 240, 0.35);
+}
+
+.status-badge-BOOKED,
+.status-badge-CANCELLED,
+.status-badge-COMPLETED {
+  padding: 0.4em 0.85em;
+  border-radius: 8px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35em;
+}
+.status-badge-BOOKED::before    { content: "●"; color: #198754; }
+.status-badge-CANCELLED::before { content: "●"; color: #dc3545; }
+.status-badge-COMPLETED::before { content: "●"; color: #0dcaf0; }
+
+/* Admin Home — chart + top doctors equal height */
+.admin-row-equal > [class*="col-"] > .card {
+  height: 100%;
+}
 
 .empty-state {
   text-align: center;
@@ -462,4 +495,187 @@ html, body, #root {
 .stat-card-label {
   color: #6c757d;
   font-size: 0.9rem;
+}
+
+/* ==================== Pretty DatePicker ==================== */
+.pretty-datepicker { position: relative; }
+
+.pretty-datepicker-menu {
+  padding: 0.75rem;
+  width: 320px;
+}
+
+.pretty-datepicker-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.5rem;
+  padding: 0.25rem 0.25rem 0.5rem;
+  border-bottom: 1px solid #eef0f4;
+}
+
+.pretty-datepicker-title {
+  font-weight: 600;
+  color: #212529;
+  font-size: 0.95rem;
+}
+
+.pretty-datepicker-nav {
+  width: 30px;
+  height: 30px;
+  border: none;
+  background: transparent;
+  border-radius: 6px;
+  color: #495057;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s ease;
+}
+.pretty-datepicker-nav:hover {
+  background: #eef2ff;
+  color: var(--primary);
+}
+
+.pretty-datepicker-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 2px;
+}
+
+.pretty-datepicker-dow {
+  text-align: center;
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: #6c757d;
+  padding: 0.35rem 0;
+  text-transform: uppercase;
+}
+
+.pretty-datepicker-day {
+  height: 36px;
+  border: none;
+  background: transparent;
+  border-radius: 8px;
+  font-size: 0.88rem;
+  color: #212529;
+  transition: all 0.12s ease;
+  cursor: pointer;
+}
+.pretty-datepicker-day:hover:not(:disabled) {
+  background: #eef2ff;
+  color: var(--primary);
+}
+.pretty-datepicker-day:disabled {
+  color: #ced4da;
+  cursor: not-allowed;
+}
+.pretty-datepicker-day.today {
+  border: 1px solid var(--primary);
+  font-weight: 600;
+}
+.pretty-datepicker-day.selected {
+  background: linear-gradient(135deg, #0d6efd 0%, #0a4ba8 100%);
+  color: #fff !important;
+  font-weight: 600;
+  box-shadow: 0 2px 6px rgba(13, 110, 253, 0.3);
+}
+.pretty-datepicker-day.selected:hover {
+  background: linear-gradient(135deg, #0a58ca 0%, #083a86 100%);
+}
+
+.pretty-datepicker-footer {
+  display: flex;
+  justify-content: flex-end;
+  padding-top: 0.5rem;
+  margin-top: 0.25rem;
+  border-top: 1px solid #eef0f4;
+}
+.pretty-datepicker-quick {
+  border: none;
+  background: transparent;
+  color: var(--primary);
+  font-size: 0.85rem;
+  font-weight: 500;
+  padding: 0.25rem 0.5rem;
+  border-radius: 6px;
+}
+.pretty-datepicker-quick:hover {
+  background: #eef2ff;
+}
+
+/* Time slot grid */
+.time-slot-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
+  gap: 0.5rem;
+}
+.time-slot {
+  padding: 0.6rem 0.75rem;
+  border-radius: 10px;
+  background: #fff;
+  border: 1.5px solid #e6e9ef;
+  font-weight: 500;
+  font-size: 0.95rem;
+  transition: all 0.15s ease;
+  cursor: pointer;
+}
+.time-slot:hover {
+  border-color: var(--primary);
+  color: var(--primary);
+  background: #f0f6ff;
+}
+.time-slot.active {
+  background: linear-gradient(135deg, #0d6efd 0%, #0a4ba8 100%);
+  border-color: transparent;
+  color: #fff;
+  box-shadow: 0 2px 8px rgba(13, 110, 253, 0.3);
+}
+
+/* BookAppointment card spacing */
+.book-card {
+  border-radius: 18px;
+  box-shadow: 0 8px 24px rgba(13, 110, 253, 0.08);
+}
+
+/* AdminHome top doctors row alignment */
+.top-doctor-row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.65rem 0;
+  border-bottom: 1px solid #eef0f4;
+}
+.top-doctor-row:last-child { border-bottom: none; }
+
+.top-doctor-rank {
+  font-weight: 700;
+  color: #6c757d;
+  width: 22px;
+  flex-shrink: 0;
+}
+.top-doctor-info {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+.top-doctor-name {
+  display: block;
+  font-weight: 600;
+  color: var(--primary);
+  text-decoration: none;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.top-doctor-name:hover { text-decoration: underline; }
+.top-doctor-spec {
+  font-size: 0.83rem;
+  color: #6c757d;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.top-doctor-rating {
+  flex-shrink: 0;
+  white-space: nowrap;
 }

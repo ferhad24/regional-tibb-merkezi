@@ -73,7 +73,7 @@ export default function AdminHome() {
         ))}
       </div>
 
-      <div className="row g-3">
+      <div className="row g-3 admin-row-equal align-items-stretch">
         <div className="col-lg-7">
           <div className="card">
             <div className="card-header bg-white">
@@ -127,17 +127,17 @@ export default function AdminHome() {
               ) : (
                 <ul className="list-unstyled mb-0">
                   {stats.topDoctors.map((d, i) => (
-                    <li key={d.id} className="d-flex align-items-center py-2 border-bottom">
-                      <span className="me-3 fw-bold text-muted" style={{ width: 24 }}>
-                        {i + 1}.
-                      </span>
-                      <div className="flex-grow-1">
-                        <Link to={`/doctors/${d.id}`} className="fw-semibold text-decoration-none">
+                    <li key={d.id} className="top-doctor-row">
+                      <span className="top-doctor-rank">{i + 1}.</span>
+                      <div className="top-doctor-info">
+                        <Link to={`/doctors/${d.id}`} className="top-doctor-name">
                           {d.fullName}
                         </Link>
-                        <div className="small text-muted">{d.specialization}</div>
+                        <div className="top-doctor-spec">{d.specialization}</div>
                       </div>
-                      <StarRating value={d.averageRating || 0} count={d.reviewCount || 0} />
+                      <div className="top-doctor-rating">
+                        <StarRating value={d.averageRating || 0} count={d.reviewCount || 0} />
+                      </div>
                     </li>
                   ))}
                 </ul>
