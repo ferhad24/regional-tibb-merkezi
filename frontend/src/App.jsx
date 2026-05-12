@@ -7,6 +7,7 @@ import Login from './pages/Login.jsx';
 import Register from './pages/Register.jsx';
 import Dashboard from './pages/Dashboard.jsx';
 import BookAppointment from './pages/BookAppointment.jsx';
+import DoctorDetail from './pages/DoctorDetail.jsx';
 
 import AdminHome from './pages/admin/AdminHome.jsx';
 import AdminDoctors from './pages/admin/AdminDoctors.jsx';
@@ -28,6 +29,7 @@ export default function App() {
     <Layout>
       <Routes>
         <Route path="/" element={<Home />} />
+        <Route path="/doctors/:id" element={<DoctorDetail />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
 

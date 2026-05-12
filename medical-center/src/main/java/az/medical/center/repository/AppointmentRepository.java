@@ -21,4 +21,8 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Long> 
     @Query("SELECT a FROM Appointment a JOIN FETCH a.doctor d JOIN FETCH d.department " +
             "JOIN FETCH a.patient ORDER BY a.date DESC, a.time DESC")
     List<Appointment> findAllWithDetails();
+
+    @Query("SELECT a.date AS d, COUNT(a) AS c FROM Appointment a " +
+            "WHERE a.date >= :fromDate GROUP BY a.date ORDER BY a.date ASC")
+    List<Object[]> countByDateSince(java.time.LocalDate fromDate);
 }

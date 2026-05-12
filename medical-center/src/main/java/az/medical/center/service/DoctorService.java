@@ -50,6 +50,8 @@ public class DoctorService {
         doctor.setFullName(form.getFullName());
         doctor.setSpecialization(form.getSpecialization());
         doctor.setBio(form.getBio());
+        doctor.setExperience(form.getExperience());
+        doctor.setEducation(form.getEducation());
         doctor.setAvatarUrl(form.getAvatarUrl());
         doctor.setDepartment(department);
 

@@ -1,8 +1,18 @@
 import { useEffect, useState } from 'react';
 import api, { extractError } from '../../api/client.js';
 import Alert from '../../components/Alert.jsx';
+import StarRating from '../../components/StarRating.jsx';
 
-const empty = { id: null, fullName: '', specialization: '', bio: '', departmentId: '' };
+const empty = {
+  id: null,
+  fullName: '',
+  specialization: '',
+  bio: '',
+  experience: '',
+  education: '',
+  avatarUrl: '',
+  departmentId: '',
+};
 
 export default function AdminDoctors() {
   const [doctors, setDoctors] = useState([]);
@@ -38,6 +48,9 @@ export default function AdminDoctors() {
       fullName: d.fullName,
       specialization: d.specialization,
       bio: d.bio || '',
+      experience: d.experience || '',
+      education: d.education || '',
+      avatarUrl: d.avatarUrl || '',
       departmentId: d.departmentId,
     });
   };
@@ -111,6 +124,7 @@ export default function AdminDoctors() {
                     value={form.fullName}
                     onChange={(e) => setForm({ ...form, fullName: e.target.value })}
                     required
+                    maxLength={120}
                   />
                 </div>
                 <div className="col-md-6">
@@ -120,6 +134,7 @@ export default function AdminDoctors() {
                     value={form.specialization}
                     onChange={(e) => setForm({ ...form, specialization: e.target.value })}
                     required
+                    maxLength={120}
                   />
                 </div>
                 <div className="col-md-6">
@@ -136,13 +151,46 @@ export default function AdminDoctors() {
                     ))}
                   </select>
                 </div>
+                <div className="col-md-6">
+                  <label className="form-label">Avatar URL (istəyə bağlı)</label>
+                  <input
+                    className="form-control"
+                    value={form.avatarUrl}
+                    onChange={(e) => setForm({ ...form, avatarUrl: e.target.value })}
+                    maxLength={500}
+                    placeholder="https://..."
+                  />
+                </div>
                 <div className="col-12">
                   <label className="form-label">Qısa məlumat (bio)</label>
                   <textarea
                     className="form-control"
                     rows={2}
+                    maxLength={2000}
                     value={form.bio}
                     onChange={(e) => setForm({ ...form, bio: e.target.value })}
+                  />
+                </div>
+                <div className="col-md-6">
+                  <label className="form-label">Təcrübə</label>
+                  <textarea
+                    className="form-control"
+                    rows={5}
+                    maxLength={4000}
+                    value={form.experience}
+                    onChange={(e) => setForm({ ...form, experience: e.target.value })}
+                    placeholder="• Xəstəxana adı — vəzifə (illər)..."
+                  />
+                </div>
+                <div className="col-md-6">
+                  <label className="form-label">Təhsil</label>
+                  <textarea
+                    className="form-control"
+                    rows={5}
+                    maxLength={4000}
+                    value={form.education}
+                    onChange={(e) => setForm({ ...form, education: e.target.value })}
+                    placeholder="• Universitet — ixtisas (illər)..."
                   />
                 </div>
               </div>
@@ -164,18 +212,22 @@ export default function AdminDoctors() {
                   <th>Ad</th>
                   <th>İxtisas</th>
                   <th>Şöbə</th>
+                  <th>Reytinq</th>
                   <th className="text-end">Əməliyyatlar</th>
                 </tr>
               </thead>
               <tbody>
                 {doctors.length === 0 && (
-                  <tr><td colSpan={4} className="text-center text-muted py-4">Həkim yoxdur</td></tr>
+                  <tr><td colSpan={5} className="text-center text-muted py-4">Həkim yoxdur</td></tr>
                 )}
                 {doctors.map((d) => (
                   <tr key={d.id}>
                     <td>{d.fullName}</td>
                     <td>{d.specialization}</td>
                     <td>{d.departmentName}</td>
+                    <td>
+                      <StarRating value={d.averageRating || 0} count={d.reviewCount || 0} />
+                    </td>
                     <td className="text-end">
                       <button className="btn btn-outline-primary btn-sm me-2" onClick={() => startEdit(d)}>
                         <i className="bi bi-pencil" />

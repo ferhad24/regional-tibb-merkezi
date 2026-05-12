@@ -334,3 +334,132 @@ html, body, #root {
   background: linear-gradient(135deg, #0a58ca 0%, #083a86 100%);
   color: #ffffff;
 }
+
+/* ==================== StarRating ==================== */
+.star-rating {
+  display: inline-flex;
+  align-items: center;
+}
+.star-rating svg {
+  margin-right: 2px;
+}
+.star-count {
+  font-size: 0.9rem;
+  color: #6c757d;
+  font-weight: 500;
+}
+.star-rating-lg .star-count {
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.star-input {
+  display: inline-flex;
+  align-items: center;
+}
+.star-input-cell {
+  display: inline-block;
+  margin-right: 4px;
+  line-height: 0;
+}
+
+/* ==================== Clickable doctor card ==================== */
+.doctor-card-clickable {
+  cursor: pointer;
+}
+.doctor-card-clickable:hover .card-title {
+  color: var(--primary);
+}
+.doctor-card-clickable:focus-visible {
+  outline: 3px solid rgba(13, 110, 253, 0.35);
+  outline-offset: 2px;
+}
+
+/* ==================== Doctor detail ==================== */
+.doctor-detail-card {
+  position: sticky;
+  top: 1rem;
+}
+.doctor-avatar-lg {
+  width: 140px;
+  height: 140px;
+  font-size: 3rem;
+}
+.doctor-avatar-lg img,
+.doctor-avatar-lg .avatar-fallback {
+  width: 140px;
+  height: 140px;
+}
+.prose-pre {
+  background: transparent;
+  color: inherit;
+  padding: 0;
+  font-size: 0.95rem;
+  line-height: 1.6;
+}
+.review-item {
+  padding: 0.85rem 0;
+  border-bottom: 1px solid #eef0f4;
+}
+.review-item:last-child {
+  border-bottom: none;
+}
+.quick-badge-good {
+  background: rgba(25, 135, 84, 0.15);
+  color: #146c43;
+}
+.quick-badge-average {
+  background: rgba(255, 193, 7, 0.18);
+  color: #997404;
+}
+.quick-badge-bad {
+  background: rgba(220, 53, 69, 0.15);
+  color: #b02a37;
+}
+
+.nav-tabs .nav-link {
+  color: #495057;
+  border: none;
+  border-bottom: 2px solid transparent;
+}
+.nav-tabs .nav-link.active {
+  color: var(--primary);
+  background: transparent;
+  border-bottom: 2px solid var(--primary);
+  font-weight: 600;
+}
+
+/* ==================== Admin stats cards ==================== */
+.stat-card {
+  border: 1px solid #e6e9ef;
+  border-radius: 14px;
+  padding: 1.25rem;
+  background: #fff;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+.stat-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.05);
+}
+.stat-card-icon {
+  width: 52px;
+  height: 52px;
+  border-radius: 12px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  color: white;
+}
+.stat-card-value {
+  font-size: 1.85rem;
+  font-weight: 700;
+  line-height: 1;
+}
+.stat-card-label {
+  color: #6c757d;
+  font-size: 0.9rem;
+}

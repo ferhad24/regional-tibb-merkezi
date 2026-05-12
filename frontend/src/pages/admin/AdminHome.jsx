@@ -1,24 +1,48 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
+import {
+  CartesianGrid,
+  Line,
+  LineChart,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis,
+} from 'recharts';
 import api, { extractError } from '../../api/client.js';
 import Alert from '../../components/Alert.jsx';
+import StarRating from '../../components/StarRating.jsx';
+
+const CARDS = [
+  { key: 'doctors', label: 'Həkimlər', icon: 'bi-person-badge', to: '/admin/doctors', color: '#0d6efd' },
+  { key: 'departments', label: 'Şöbələr', icon: 'bi-building', to: '/admin/departments', color: '#198754' },
+  { key: 'appointments', label: 'Növbələr', icon: 'bi-calendar-week', to: '/admin/appointments', color: '#0dcaf0' },
+  { key: 'patients', label: 'Xəstələr', icon: 'bi-people', to: '/admin/doctors', color: '#6f42c1' },
+];
+
+function formatDate(iso) {
+  if (!iso) return '';
+  const d = new Date(iso + 'T00:00:00');
+  return d.toLocaleDateString('az-AZ', { day: '2-digit', month: '2-digit' });
+}
 
 export default function AdminHome() {
   const [stats, setStats] = useState(null);
   const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     api
       .get('/admin/stats')
       .then((res) => setStats(res.data))
-      .catch((err) => setError(extractError(err)));
+      .catch((err) => setError(extractError(err)))
+      .finally(() => setLoading(false));
   }, []);
 
-  const cards = [
-    { key: 'doctors', label: 'Həkimlər', icon: 'bi-person-badge', to: '/admin/doctors', color: 'primary' },
-    { key: 'departments', label: 'Şöbələr', icon: 'bi-building', to: '/admin/departments', color: 'success' },
-    { key: 'appointments', label: 'Növbələr', icon: 'bi-calendar-week', to: '/admin/appointments', color: 'info' },
-  ];
+  const chartData = (stats?.appointmentsLast7Days || []).map((p) => ({
+    name: formatDate(p.date),
+    Növbələr: Number(p.count) || 0,
+  }));
 
   return (
     <div className="container py-5">
@@ -29,24 +53,116 @@ export default function AdminHome() {
 
       {error && <Alert type="danger" onClose={() => setError(null)}>{error}</Alert>}
 
-      <div className="row g-3">
-        {cards.map((c) => (
-          <div className="col-md-4" key={c.key}>
-            <Link to={c.to} className="text-decoration-none">
-              <div className="card border-0 shadow-sm h-100">
-                <div className="card-body d-flex align-items-center">
-                  <div className={`text-${c.color} me-3`} style={{ fontSize: '2.5rem' }}>
-                    <i className={`bi ${c.icon}`} />
+      <div className="row g-3 mb-4">
+        {CARDS.map((c) => (
+          <div className="col-md-6 col-lg-3" key={c.key}>
+            <Link to={c.to} className="text-decoration-none text-dark">
+              <div className="stat-card">
+                <div className="stat-card-icon" style={{ background: c.color }}>
+                  <i className={`bi ${c.icon}`} />
+                </div>
+                <div>
+                  <div className="stat-card-value">
+                    {loading ? '...' : (stats?.[c.key] ?? 0)}
                   </div>
-                  <div>
-                    <div className="text-muted small">{c.label}</div>
-                    <div className="fs-3 fw-bold">{stats?.[c.key] ?? '...'}</div>
-                  </div>
+                  <div className="stat-card-label">{c.label}</div>
                 </div>
               </div>
             </Link>
           </div>
         ))}
+      </div>
+
+      <div className="row g-3">
+        <div className="col-lg-7">
+          <div className="card">
+            <div className="card-header bg-white">
+              <h5 className="mb-0">
+                <i className="bi bi-graph-up me-2 text-primary" />
+                Son 7 günün növbələri
+              </h5>
+            </div>
+            <div className="card-body">
+              {loading ? (
+                <div className="text-center py-4">
+                  <div className="spinner-border text-primary" role="status" />
+                </div>
+              ) : (
+                <ResponsiveContainer width="100%" height={280}>
+                  <LineChart data={chartData} margin={{ top: 10, right: 20, left: -10, bottom: 0 }}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="#e6e9ef" />
+                    <XAxis dataKey="name" tick={{ fontSize: 12 }} />
+                    <YAxis allowDecimals={false} tick={{ fontSize: 12 }} />
+                    <Tooltip />
+                    <Line
+                      type="monotone"
+                      dataKey="Növbələr"
+                      stroke="#0d6efd"
+                      strokeWidth={3}
+                      dot={{ r: 4, fill: '#0d6efd' }}
+                      activeDot={{ r: 6 }}
+                    />
+                  </LineChart>
+                </ResponsiveContainer>
+              )}
+            </div>
+          </div>
+        </div>
+
+        <div className="col-lg-5">
+          <div className="card h-100">
+            <div className="card-header bg-white">
+              <h5 className="mb-0">
+                <i className="bi bi-trophy me-2 text-warning" />
+                Top reytinqli həkimlər
+              </h5>
+            </div>
+            <div className="card-body">
+              {loading ? (
+                <div className="text-center py-4">
+                  <div className="spinner-border text-primary" role="status" />
+                </div>
+              ) : !stats?.topDoctors?.length ? (
+                <p className="text-muted mb-0">Hələ rəy verilməyib.</p>
+              ) : (
+                <ul className="list-unstyled mb-0">
+                  {stats.topDoctors.map((d, i) => (
+                    <li key={d.id} className="d-flex align-items-center py-2 border-bottom">
+                      <span className="me-3 fw-bold text-muted" style={{ width: 24 }}>
+                        {i + 1}.
+                      </span>
+                      <div className="flex-grow-1">
+                        <Link to={`/doctors/${d.id}`} className="fw-semibold text-decoration-none">
+                          {d.fullName}
+                        </Link>
+                        <div className="small text-muted">{d.specialization}</div>
+                      </div>
+                      <StarRating value={d.averageRating || 0} count={d.reviewCount || 0} />
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="row g-3 mt-1">
+        <div className="col-12">
+          <div className="card">
+            <div className="card-body d-flex flex-wrap gap-2">
+              <Link to="/admin/doctors" className="btn btn-primary btn-pill">
+                <i className="bi bi-person-badge me-1" /> Həkimləri idarə et
+              </Link>
+              <Link to="/admin/departments" className="btn btn-outline-primary btn-pill">
+                <i className="bi bi-building me-1" /> Şöbələri idarə et
+              </Link>
+              <Link to="/admin/appointments" className="btn btn-outline-primary btn-pill">
+                <i className="bi bi-calendar-week me-1" /> Bütün növbələr
+              </Link>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );

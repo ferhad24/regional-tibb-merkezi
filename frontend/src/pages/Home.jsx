@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../api/client.js';
-import { useAuth } from '../auth/AuthContext.jsx';
 import DoctorAvatar from '../components/DoctorAvatar.jsx';
 import PrettyDropdown from '../components/PrettyDropdown.jsx';
+import StarRating from '../components/StarRating.jsx';
 
 export default function Home() {
   const [doctors, setDoctors] = useState([]);
@@ -11,7 +11,6 @@ export default function Home() {
   const [filter, setFilter] = useState('all');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
-  const { isPatient, user } = useAuth();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -38,16 +37,8 @@ export default function Home() {
     return acc;
   }, {});
 
-  const handleBook = (doctorId) => {
-    if (!user) {
-      navigate('/login', { state: { from: `/book/${doctorId}` } });
-      return;
-    }
-    if (!isPatient) {
-      alert('Yalnız xəstələr növbə təyin edə bilər');
-      return;
-    }
-    navigate(`/book/${doctorId}`);
+  const openDoctor = (doctorId) => {
+    navigate(`/doctors/${doctorId}`);
   };
 
   return (
@@ -117,7 +108,18 @@ export default function Home() {
             <div className="row g-3">
               {docs.map((doc) => (
                 <div className="col-md-6 col-lg-4" key={doc.id}>
-                  <div className="card doctor-card h-100">
+                  <div
+                    className="card doctor-card doctor-card-clickable h-100"
+                    onClick={() => openDoctor(doc.id)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        openDoctor(doc.id);
+                      }
+                    }}
+                    role="button"
+                    tabIndex={0}
+                  >
                     <div className="card-body">
                       <div className="d-flex align-items-center mb-3">
                         <DoctorAvatar src={doc.avatarUrl} name={doc.fullName} className="me-3" />
@@ -128,16 +130,15 @@ export default function Home() {
                           </p>
                         </div>
                       </div>
-                      {doc.bio && <p className="card-text small text-muted mb-0">{doc.bio}</p>}
+                      {doc.bio && <p className="card-text small text-muted mb-2">{doc.bio}</p>}
                     </div>
-                    <div className="card-footer bg-white border-0 pb-3">
-                      <button
-                        className="btn btn-primary w-100"
-                        onClick={() => handleBook(doc.id)}
-                      >
-                        <i className="bi bi-calendar-plus me-1" />
-                        Növbəyə yazıl
-                      </button>
+                    <div className="card-footer bg-white border-0 pb-3 pt-0">
+                      <StarRating value={doc.averageRating || 0} count={doc.reviewCount || 0} />
+                      <div className="text-end mt-2">
+                        <span className="small text-muted">
+                          <i className="bi bi-chevron-right" /> Ətraflı
+                        </span>
+                      </div>
                     </div>
                   </div>
                 </div>

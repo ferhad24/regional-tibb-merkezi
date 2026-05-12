@@ -23,6 +23,12 @@ public class DoctorForm {
     @Size(max = 2000)
     private String bio;
 
+    @Size(max = 4000)
+    private String experience;
+
+    @Size(max = 4000)
+    private String education;
+
     @Size(max = 500)
     private String avatarUrl;
 

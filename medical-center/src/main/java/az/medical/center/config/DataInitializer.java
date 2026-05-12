@@ -170,6 +170,8 @@ public class DataInitializer implements CommandLineRunner {
         );
 
         for (DoctorSeed s : seeds) {
+            String experience = experienceFor(s.deptName, s.specialization);
+            String education = educationFor(s.deptName);
             Optional<Doctor> existing = doctorRepository.findByFullName(s.fullName);
             if (existing.isPresent()) {
                 Doctor d = existing.get();
@@ -177,16 +179,64 @@ public class DataInitializer implements CommandLineRunner {
                 d.setBio(s.bio);
                 d.setAvatarUrl(s.avatarUrl);
                 d.setDepartment(depts.get(s.deptName));
+                if (d.getExperience() == null || d.getExperience().isBlank()) {
+                    d.setExperience(experience);
+                }
+                if (d.getEducation() == null || d.getEducation().isBlank()) {
+                    d.setEducation(education);
+                }
             } else {
                 doctorRepository.save(Doctor.builder()
                         .fullName(s.fullName)
                         .specialization(s.specialization)
                         .bio(s.bio)
+                        .experience(experience)
+                        .education(education)
                         .avatarUrl(s.avatarUrl)
                         .department(depts.get(s.deptName))
                         .build());
             }
         }
+    }
+
+    private static String experienceFor(String deptName, String spec) {
+        return switch (deptName) {
+            case "Kardiologiya" -> "• Mərkəzi Klinik Xəstəxana — Kardiologiya şöbəsi (2014–2020)\n"
+                    + "• Respublika Diaqnostika Mərkəzi — " + spec + " (2020–indiyə qədər)\n"
+                    + "• 1500+ EKQ və exo-kardioqrafiya müayinəsi\n"
+                    + "• Avropa Kardiologiya Cəmiyyətinin (ESC) üzvü";
+            case "Nevrologiya" -> "• Bakı Şəhər Klinik Xəstəxanası — Nevrologiya şöbəsi (2013–2019)\n"
+                    + "• MediRegSys — " + spec + " (2019–indiyə qədər)\n"
+                    + "• EEG, EMG və neyrosonologiya üzrə 1200+ müayinə\n"
+                    + "• Beynəlxalq Baş Ağrıları Cəmiyyətinin (IHS) üzvü";
+            case "Pediatriya" -> "• Uşaq Klinik Xəstəxanası N.2 — Pediatriya şöbəsi (2015–2021)\n"
+                    + "• MediRegSys Uşaq Mərkəzi — " + spec + " (2021–indiyə qədər)\n"
+                    + "• 3000+ uşaq müayinəsi, profilaktik baxış və vaksinasiya\n"
+                    + "• Uşaq Həkimləri Assosiasiyasının (AAP) üzvü";
+            case "Daxili Xəstəliklər" -> "• Respublika Klinik Xəstəxanası — Terapevtik şöbə (2012–2018)\n"
+                    + "• MediRegSys — " + spec + " (2018–indiyə qədər)\n"
+                    + "• 2000+ ambulator və stasionar müalicə\n"
+                    + "• Daxili Tibb Assosiasiyasının (ACP) üzvü";
+            default -> "• Müxtəlif klinikalarda 10+ il təcrübə";
+        };
+    }
+
+    private static String educationFor(String deptName) {
+        return switch (deptName) {
+            case "Kardiologiya" -> "• Azərbaycan Tibb Universiteti — Müalicə işi (2007–2013)\n"
+                    + "• Türkiyə, Marmara Universiteti — Kardiologiya rezidenturası (2013–2017)\n"
+                    + "• Almaniya, Charité — İnterventiv kardiologiya təcrübəsi (2018)";
+            case "Nevrologiya" -> "• Azərbaycan Tibb Universiteti — Müalicə işi (2006–2012)\n"
+                    + "• Türkiyə, Hacettepe Universiteti — Nevrologiya rezidenturası (2012–2016)\n"
+                    + "• Avstriya, Vyana Tibb Universiteti — Epilepsiya təcrübəsi (2017)";
+            case "Pediatriya" -> "• Azərbaycan Tibb Universiteti — Pediatriya fakültəsi (2008–2014)\n"
+                    + "• Türkiyə, İstanbul Universiteti — Pediatriya rezidenturası (2014–2018)\n"
+                    + "• İsrail, Schneider Children's Medical Center — təcrübə (2019)";
+            case "Daxili Xəstəliklər" -> "• Azərbaycan Tibb Universiteti — Müalicə işi (2005–2011)\n"
+                    + "• Türkiyə, Ankara Universiteti — Daxili xəstəliklər rezidenturası (2011–2015)\n"
+                    + "• ABŞ, Mayo Clinic — qısamüddətli təcrübə (2016)";
+            default -> "• Azərbaycan Tibb Universiteti";
+        };
     }
 
     private static DoctorSeed d(String name, String spec, String bio, String deptName, String avatarUrl) {

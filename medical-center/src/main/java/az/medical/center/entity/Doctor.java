@@ -28,6 +28,12 @@ public class Doctor {
     @Column(columnDefinition = "TEXT")
     private String bio;
 
+    @Column(columnDefinition = "TEXT")
+    private String experience;
+
+    @Column(columnDefinition = "TEXT")
+    private String education;
+
     @Column(name = "avatar_url", length = 500)
     private String avatarUrl;
 
