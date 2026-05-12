@@ -114,15 +114,24 @@ public class DataInitializer implements CommandLineRunner {
             User u = userRepository.findByUsername(username).orElse(null);
             String mode;
             if (u == null) {
-                if (userRepository.existsByEmail(username)) {
-                    log.warn("Admin seed SKIPPED for {}: email already used by another user", username);
-                    continue;
+                // Username yoxdur — bəlkə eyni email başqa admin-də istifadə olunur (env-var admin)
+                User byEmail = userRepository.findByEmail(username).orElse(null);
+                if (byEmail != null) {
+                    if (byEmail.getRole() != Role.ROLE_ADMIN) {
+                        log.warn("Admin seed SKIPPED for {}: email used by non-admin user", username);
+                        continue;
+                    }
+                    // Mövcud admin-i götür: username-i emaila dəyiş
+                    u = byEmail;
+                    u.setUsername(username);
+                    mode = "took-over-by-email";
+                } else {
+                    u = new User();
+                    u.setUsername(username);
+                    u.setEmail(username);
+                    u.setPhone("+994000000000");
+                    mode = "created";
                 }
-                u = new User();
-                u.setUsername(username);
-                u.setEmail(username);
-                u.setPhone("+994000000000");
-                mode = "created";
             } else {
                 mode = "updated";
                 if (u.getEmail() == null || u.getEmail().isBlank() || u.getEmail().equals(username)) {
