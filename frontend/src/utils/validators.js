@@ -12,6 +12,19 @@ export const validateUsername = (v) => {
   return null;
 };
 
+// Login üçün daha sərbəst yoxlama — istifadəçi adı VƏ YA email qəbul edir.
+export const validateLoginIdentifier = (v) => {
+  const t = (v || '').trim();
+  if (!t) return 'İstifadəçi adı boş ola bilməz';
+  if (t.length > 120) return 'Çox uzundur';
+  const usernamePattern = /^[a-zA-Z0-9._-]+$/;
+  const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+  if (!usernamePattern.test(t) && !emailPattern.test(t)) {
+    return 'İstifadəçi adı və ya e-poçt formatında olmalıdır';
+  }
+  return null;
+};
+
 export const validatePassword = (v) => {
   const t = v || '';
   if (!t) return 'Şifrə boş ola bilməz';

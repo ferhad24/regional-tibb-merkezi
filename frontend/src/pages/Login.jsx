@@ -3,7 +3,7 @@ import { Link, useLocation, useNavigate, useSearchParams } from 'react-router-do
 import { useAuth } from '../auth/AuthContext.jsx';
 import { extractError } from '../api/client.js';
 import Alert from '../components/Alert.jsx';
-import { validateUsername, validateLoginPassword } from '../utils/validators.js';
+import { validateLoginIdentifier, validateLoginPassword } from '../utils/validators.js';
 
 export default function Login() {
   const [username, setUsername] = useState('');
@@ -24,7 +24,7 @@ export default function Login() {
 
   const runValidation = (values = { username, password }) => {
     const e = {};
-    const u = validateUsername(values.username);
+    const u = validateLoginIdentifier(values.username);
     if (u) e.username = u;
     const p = validateLoginPassword(values.password);
     if (p) e.password = p;
