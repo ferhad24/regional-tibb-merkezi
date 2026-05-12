@@ -111,35 +111,36 @@ public class DataInitializer implements CommandLineRunner {
             String fullName = row[1];
             String rawPassword = row[2];
 
-            Optional<User> existing = userRepository.findByUsername(username);
-            if (existing.isPresent()) {
-                User u = existing.get();
-                u.setPassword(passwordEncoder.encode(rawPassword));
-                u.setFullName(fullName);
-                // Email-i yalnız boş və ya öz username-i ilə eyni olduqda yenilə —
-                // başqa istifadəçinin email-i ilə kolizyaya yol vermə
+            User u = userRepository.findByUsername(username).orElse(null);
+            String mode;
+            if (u == null) {
+                if (userRepository.existsByEmail(username)) {
+                    log.warn("Admin seed SKIPPED for {}: email already used by another user", username);
+                    continue;
+                }
+                u = new User();
+                u.setUsername(username);
+                u.setEmail(username);
+                u.setPhone("+994000000000");
+                mode = "created";
+            } else {
+                mode = "updated";
                 if (u.getEmail() == null || u.getEmail().isBlank() || u.getEmail().equals(username)) {
                     u.setEmail(username);
                 }
-                u.setRole(Role.ROLE_ADMIN);
-                u.setEnabled(true);
-                userRepository.save(u);
-            } else {
-                // Yeni admin yarat — əgər bu email başqa istifadəçidə varsa, sadəcə skip et
-                if (userRepository.existsByEmail(username)) {
-                    log.warn("Skipping admin seed for {}: email already in use by another user", username);
-                    continue;
-                }
-                User u = User.builder()
-                        .username(username)
-                        .password(passwordEncoder.encode(rawPassword))
-                        .fullName(fullName)
-                        .email(username)
-                        .phone("+994000000000")
-                        .role(Role.ROLE_ADMIN)
-                        .enabled(true)
-                        .build();
-                userRepository.save(u);
+            }
+            u.setPassword(passwordEncoder.encode(rawPassword));
+            u.setFullName(fullName);
+            u.setRole(Role.ROLE_ADMIN);
+            u.setEnabled(true);
+            try {
+                User saved = userRepository.save(u);
+                boolean matches = passwordEncoder.matches(rawPassword, saved.getPassword());
+                log.info("Admin '{}' {} (id={}, role={}, enabled={}, passwordMatchesSeed={}, rawLen={})",
+                        username, mode, saved.getId(), saved.getRole(), saved.isEnabled(),
+                        matches, rawPassword.length());
+            } catch (Exception ex) {
+                log.error("Admin save FAILED for {}: {}", username, ex.toString());
             }
         }
     }
