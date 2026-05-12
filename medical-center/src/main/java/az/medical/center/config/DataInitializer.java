@@ -11,11 +11,13 @@ import az.medical.center.repository.DoctorRepository;
 import az.medical.center.repository.ReviewRepository;
 import az.medical.center.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.support.TransactionTemplate;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -27,6 +29,7 @@ import java.util.UUID;
 
 @Component
 @RequiredArgsConstructor
+@Slf4j
 public class DataInitializer implements CommandLineRunner {
 
     private final UserRepository userRepository;
@@ -34,6 +37,7 @@ public class DataInitializer implements CommandLineRunner {
     private final DoctorRepository doctorRepository;
     private final ReviewRepository reviewRepository;
     private final PasswordEncoder passwordEncoder;
+    private final PlatformTransactionManager transactionManager;
 
     @Value("${app.admin.username}")
     private String adminUsername;
@@ -62,14 +66,37 @@ public class DataInitializer implements CommandLineRunner {
     }
 
     @Override
-    @Transactional
     public void run(String... args) {
-        seedAdmin();
-        seedExtraAdmins();
-        Map<String, Department> depts = ensureDepartments();
-        seedDoctors(depts);
-        List<User> demoPatients = seedDemoPatients();
-        seedDemoReviews(demoPatients);
+        // Hər seed öz tranzaksiyasında — biri uğursuz olsa digərləri davam edir.
+        TransactionTemplate tt = new TransactionTemplate(transactionManager);
+
+        safe(tt, "seedAdmin",        this::seedAdmin);
+        safe(tt, "seedExtraAdmins",  this::seedExtraAdmins);
+
+        @SuppressWarnings("unchecked")
+        Map<String, Department>[] deptsHolder = new Map[1];
+        safe(tt, "ensureDepartments", () -> deptsHolder[0] = ensureDepartments());
+
+        if (deptsHolder[0] != null) {
+            safe(tt, "seedDoctors", () -> seedDoctors(deptsHolder[0]));
+        }
+
+        @SuppressWarnings("unchecked")
+        List<User>[] patientsHolder = new List[1];
+        safe(tt, "seedDemoPatients", () -> patientsHolder[0] = seedDemoPatients());
+
+        if (patientsHolder[0] != null) {
+            safe(tt, "seedDemoReviews", () -> seedDemoReviews(patientsHolder[0]));
+        }
+    }
+
+    private void safe(TransactionTemplate tt, String name, Runnable action) {
+        try {
+            tt.executeWithoutResult(status -> action.run());
+            log.info("Seed step '{}' OK", name);
+        } catch (Exception e) {
+            log.error("Seed step '{}' FAILED: {}", name, e.getMessage());
+        }
     }
 
     // Sabit admin hesabları — username = email, şifrələr DataInitializer-dən sinxron olur
@@ -89,10 +116,20 @@ public class DataInitializer implements CommandLineRunner {
                 User u = existing.get();
                 u.setPassword(passwordEncoder.encode(rawPassword));
                 u.setFullName(fullName);
-                u.setEmail(username);
+                // Email-i yalnız boş və ya öz username-i ilə eyni olduqda yenilə —
+                // başqa istifadəçinin email-i ilə kolizyaya yol vermə
+                if (u.getEmail() == null || u.getEmail().isBlank() || u.getEmail().equals(username)) {
+                    u.setEmail(username);
+                }
                 u.setRole(Role.ROLE_ADMIN);
                 u.setEnabled(true);
+                userRepository.save(u);
             } else {
+                // Yeni admin yarat — əgər bu email başqa istifadəçidə varsa, sadəcə skip et
+                if (userRepository.existsByEmail(username)) {
+                    log.warn("Skipping admin seed for {}: email already in use by another user", username);
+                    continue;
+                }
                 User u = User.builder()
                         .username(username)
                         .password(passwordEncoder.encode(rawPassword))
@@ -132,6 +169,7 @@ public class DataInitializer implements CommandLineRunner {
                         if (existing.getDisplayOrder() == null
                                 || existing.getDisplayOrder() != currentOrder) {
                             existing.setDisplayOrder(currentOrder);
+                            return departmentRepository.save(existing);
                         }
                         return existing;
                     })
@@ -234,6 +272,7 @@ public class DataInitializer implements CommandLineRunner {
                 if (d.getEducation() == null || d.getEducation().isBlank()) {
                     d.setEducation(education);
                 }
+                doctorRepository.save(d);
             } else {
                 doctorRepository.save(Doctor.builder()
                         .fullName(s.fullName)
@@ -318,16 +357,24 @@ public class DataInitializer implements CommandLineRunner {
                 patients.add(existing.get());
                 continue;
             }
-            User u = User.builder()
-                    .username(username)
-                    .password(passwordEncoder.encode(UUID.randomUUID().toString()))
-                    .fullName(row[1])
-                    .email(row[2])
-                    .phone(row[3])
-                    .role(Role.ROLE_PATIENT)
-                    .enabled(true)
-                    .build();
-            patients.add(userRepository.save(u));
+            if (userRepository.existsByEmail(row[2])) {
+                log.warn("Skipping demo patient {}: email already in use", username);
+                continue;
+            }
+            try {
+                User u = User.builder()
+                        .username(username)
+                        .password(passwordEncoder.encode(UUID.randomUUID().toString()))
+                        .fullName(row[1])
+                        .email(row[2])
+                        .phone(row[3])
+                        .role(Role.ROLE_PATIENT)
+                        .enabled(true)
+                        .build();
+                patients.add(userRepository.save(u));
+            } catch (Exception ex) {
+                log.warn("Could not create demo patient {}: {}", username, ex.getMessage());
+            }
         }
         return patients;
     }
