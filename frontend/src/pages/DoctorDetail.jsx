@@ -43,7 +43,13 @@ export default function DoctorDetail() {
           setComment('');
         }
       })
-      .catch((e) => setError(e?.response?.status === 404 ? 'Həkim tapılmadı' : 'Yükləmə xətası'))
+      .catch((e) => {
+        const status = e?.response?.status;
+        const serverMsg = e?.response?.data?.message;
+        if (status === 404) setError('Həkim tapılmadı');
+        else if (!status) setError('Server cavab vermir. Bir azdan yenidən cəhd edin.');
+        else setError(`Yükləmə xətası (${status})${serverMsg ? ': ' + serverMsg : ''}`);
+      })
       .finally(() => setLoading(false));
   };
 

@@ -45,9 +45,13 @@ public class DataInitializer implements CommandLineRunner {
         DEPT_DESC.put("Daxili Xəstəliklər", "Daxili orqanların xəstəlikləri şöbəsi");
     }
 
-    private static String img(String id) {
-        return "https://images.unsplash.com/photo-" + id
-                + "?w=400&h=400&fit=crop&crop=faces&q=80&auto=format";
+    // randomuser.me — cinsiyyət uyğun real portretlər (zəmanətli)
+    private static String womanImg(int idx) {
+        return "https://randomuser.me/api/portraits/women/" + idx + ".jpg";
+    }
+
+    private static String manImg(int idx) {
+        return "https://randomuser.me/api/portraits/men/" + idx + ".jpg";
     }
 
     @Override
@@ -103,70 +107,70 @@ public class DataInitializer implements CommandLineRunner {
                 // Kardiologiya (5)
                 d("Dr. Aysel Məmmədova", "Kardioloq, baş həkim",
                         "10+ il təcrübəli kardioloq, EKQ və exo-kardioqrafiya üzrə mütəxəssis.",
-                        "Kardiologiya", img("1559839734-2b71ea197ec2")),
+                        "Kardiologiya", womanImg(12)),
                 d("Dr. Nicat Babayev", "Kardioloq",
                         "Ürək ritmi pozğunluqları, qan təzyiqi və əməliyyatdan sonrakı reabilitasiya.",
-                        "Kardiologiya", img("1612349317150-e413f6a5b16d")),
+                        "Kardiologiya", manImg(31)),
                 d("Dr. Elnur İsmayılov", "İnvaziv kardioloq",
                         "Angiografiya, stent qoyulması və koroner damar müdaxilələri.",
-                        "Kardiologiya", img("1622253692010-333f2da6031d")),
+                        "Kardiologiya", manImg(45)),
                 d("Dr. Tahirə Şirinova", "Kardioloq-aritmoloq",
                         "Aritmiya, sinkop və holter monitorinqi sahəsində ixtisaslaşıb.",
-                        "Kardiologiya", img("1594824476967-48c8b964273f")),
+                        "Kardiologiya", womanImg(24)),
                 d("Dr. Vüsal Quliyev", "Kardioloq, profilaktika",
                         "Profilaktik müayinələr, xolesterin və qan təzyiqi izləməsi.",
-                        "Kardiologiya", img("1537368910025-700350fe46c7")),
+                        "Kardiologiya", manImg(52)),
 
                 // Nevrologiya (3)
                 d("Dr. Rəşid Əliyev", "Nevroloq",
                         "Baş ağrıları, miqren və yuxu pozğunluqları üzrə ixtisaslaşıb.",
-                        "Nevrologiya", img("1666214280557-f1b5022eb634")),
+                        "Nevrologiya", manImg(67)),
                 d("Dr. Səbinə Hacıyeva", "Nevroloq, EEG mütəxəssisi",
                         "Epilepsiya, neyropatiya və insult sonrası reabilitasiya.",
-                        "Nevrologiya", img("1551601651-2a8555f1a136")),
+                        "Nevrologiya", womanImg(33)),
                 d("Dr. Kamran Mustafayev", "Nevroloq, baş ağrıları mərkəzi rəhbəri",
                         "Xroniki migren, cluster baş ağrıları və botoks terapiyası.",
-                        "Nevrologiya", img("1559757175-5700dde675bc")),
+                        "Nevrologiya", manImg(78)),
 
                 // Pediatriya (8)
                 d("Dr. Günay Hüseynova", "Pediatr",
                         "Yenidoğulmuşdan yeniyetmə yaşa qədər uşaq sağlamlığı.",
-                        "Pediatriya", img("1582750433449-648ed127bb54")),
+                        "Pediatriya", womanImg(44)),
                 d("Dr. Murad Quliyev", "Pediatr, allerqoloq",
                         "Uşaq allergiyaları, immun sistem və vaksinasiya məsləhəti.",
-                        "Pediatriya", img("1631217872822-1c2546d6b864")),
+                        "Pediatriya", manImg(15)),
                 d("Dr. Aytac Rzayeva", "Yenidoğulmuş pediatr",
                         "Yenidoğulmuş bakımı, prematür uşaqlar və erkən inkişaf.",
-                        "Pediatriya", img("1638202993928-7267aad84c31")),
+                        "Pediatriya", womanImg(56)),
                 d("Dr. Famil Əhmədov", "Pediatr-kardioloq",
                         "Uşaqlarda anadangəlmə ürək qüsurları və exo-kardioqrafiya.",
-                        "Pediatriya", img("1551884170-09fb70a3a2ed")),
+                        "Pediatriya", manImg(83)),
                 d("Dr. Lalə Səfərova", "Pediatr, infeksionist",
                         "Uşaq infeksion xəstəlikləri, hepatit və ümumi viral xəstəliklər.",
-                        "Pediatriya", img("1607746882042-944635dfe10e")),
+                        "Pediatriya", womanImg(68)),
                 d("Dr. Orxan Bayramov", "Pediatr-nevroloq",
                         "Uşaq epilepsiyası, beyin inkişafı və hərəkət pozğunluqları.",
-                        "Pediatriya", img("1606206522398-de6e2bcd2d09")),
+                        "Pediatriya", manImg(11)),
                 d("Dr. Zərifə Cəfərli", "Pediatr-endokrinoloq",
                         "Uşaq diabeti, böyümə hormonu və tiroid xəstəlikləri.",
-                        "Pediatriya", img("1530497610245-94d3c16cda28")),
+                        "Pediatriya", womanImg(75)),
                 d("Dr. Tural Kərimov", "Pediatr",
                         "Ümumi pediatrik müayinə, profilaktik baxış və inkişaf izləməsi.",
-                        "Pediatriya", img("1576091160399-112ba8d25d1d")),
+                        "Pediatriya", manImg(26)),
 
                 // Daxili Xəstəliklər (4)
                 d("Dr. Elvin Quliyev", "Daxili Xəstəliklər mütəxəssisi",
                         "Hipertenziya, diabet və mədə-bağırsaq xəstəlikləri.",
-                        "Daxili Xəstəliklər", img("1602233158242-3ba0ac4d2167")),
+                        "Daxili Xəstəliklər", manImg(38)),
                 d("Dr. Lalə Cəfərova", "Endokrinoloq",
                         "Tiroid, diabet və hormonal balans pozğunluqları.",
-                        "Daxili Xəstəliklər", img("1614608682850-e0d6ed316d47")),
+                        "Daxili Xəstəliklər", womanImg(85)),
                 d("Dr. Sənan Əliyev", "Qastroenteroloq",
                         "Mədə xorası, qastrit, qaraciyər xəstəlikləri və endoskopiya.",
-                        "Daxili Xəstəliklər", img("1612349317150-e413f6a5b16d")),
+                        "Daxili Xəstəliklər", manImg(59)),
                 d("Dr. Nigar Hüseynova", "Pulmonoloq",
                         "Astma, bronxit və tənəffüs yolu xəstəlikləri.",
-                        "Daxili Xəstəliklər", img("1612531386530-97286d97c2d2"))
+                        "Daxili Xəstəliklər", womanImg(20))
         );
 
         for (DoctorSeed s : seeds) {
