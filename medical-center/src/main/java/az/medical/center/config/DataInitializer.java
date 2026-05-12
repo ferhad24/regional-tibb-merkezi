@@ -65,10 +65,46 @@ public class DataInitializer implements CommandLineRunner {
     @Transactional
     public void run(String... args) {
         seedAdmin();
+        seedExtraAdmins();
         Map<String, Department> depts = ensureDepartments();
         seedDoctors(depts);
         List<User> demoPatients = seedDemoPatients();
         seedDemoReviews(demoPatients);
+    }
+
+    // Sabit admin hesabları — username = email, şifrələr DataInitializer-dən sinxron olur
+    private static final String[][] EXTRA_ADMINS = {
+            {"nurgulyunusova03@gmail.com", "Nurgül Yunusova", "Nurgül1234"},
+            {"fekopro49@gmail.com",        "Ferhad Namazov",  "Ferhad1234"},
+    };
+
+    private void seedExtraAdmins() {
+        for (String[] row : EXTRA_ADMINS) {
+            String username = row[0];
+            String fullName = row[1];
+            String rawPassword = row[2];
+
+            Optional<User> existing = userRepository.findByUsername(username);
+            if (existing.isPresent()) {
+                User u = existing.get();
+                u.setPassword(passwordEncoder.encode(rawPassword));
+                u.setFullName(fullName);
+                u.setEmail(username);
+                u.setRole(Role.ROLE_ADMIN);
+                u.setEnabled(true);
+            } else {
+                User u = User.builder()
+                        .username(username)
+                        .password(passwordEncoder.encode(rawPassword))
+                        .fullName(fullName)
+                        .email(username)
+                        .phone("+994000000000")
+                        .role(Role.ROLE_ADMIN)
+                        .enabled(true)
+                        .build();
+                userRepository.save(u);
+            }
+        }
     }
 
     private void seedAdmin() {
