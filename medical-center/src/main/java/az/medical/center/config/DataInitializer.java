@@ -2,10 +2,13 @@ package az.medical.center.config;
 
 import az.medical.center.entity.Department;
 import az.medical.center.entity.Doctor;
+import az.medical.center.entity.QuickFeedback;
+import az.medical.center.entity.Review;
 import az.medical.center.entity.Role;
 import az.medical.center.entity.User;
 import az.medical.center.repository.DepartmentRepository;
 import az.medical.center.repository.DoctorRepository;
+import az.medical.center.repository.ReviewRepository;
 import az.medical.center.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -14,10 +17,13 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.UUID;
 
 @Component
 @RequiredArgsConstructor
@@ -26,6 +32,7 @@ public class DataInitializer implements CommandLineRunner {
     private final UserRepository userRepository;
     private final DepartmentRepository departmentRepository;
     private final DoctorRepository doctorRepository;
+    private final ReviewRepository reviewRepository;
     private final PasswordEncoder passwordEncoder;
 
     @Value("${app.admin.username}")
@@ -60,6 +67,8 @@ public class DataInitializer implements CommandLineRunner {
         seedAdmin();
         Map<String, Department> depts = ensureDepartments();
         seedDoctors(depts);
+        List<User> demoPatients = seedDemoPatients();
+        seedDemoReviews(demoPatients);
     }
 
     private void seedAdmin() {
@@ -249,4 +258,131 @@ public class DataInitializer implements CommandLineRunner {
 
     private record DoctorSeed(String fullName, String specialization, String bio,
                               String deptName, String avatarUrl) { }
+
+    // ========== Demo xəstələr ==========
+    private static final String[][] DEMO_PATIENTS = {
+            {"demo_aysel",  "Aysel Quliyeva",   "demo.aysel@example.com",  "+994501112201"},
+            {"demo_kerim",  "Kərim Hüseynov",   "demo.kerim@example.com",  "+994501112202"},
+            {"demo_lale",   "Lalə Əliyeva",     "demo.lale@example.com",   "+994501112203"},
+            {"demo_amir",   "Əmir Babayev",     "demo.amir@example.com",   "+994501112204"},
+            {"demo_sevda",  "Sevda Məmmədova",  "demo.sevda@example.com",  "+994501112205"},
+            {"demo_ramin",  "Ramin Hacıyev",    "demo.ramin@example.com",  "+994501112206"},
+            {"demo_aygun",  "Aygün Səfərova",   "demo.aygun@example.com",  "+994501112207"},
+            {"demo_emin",   "Emin Quliyev",     "demo.emin@example.com",   "+994501112208"},
+            {"demo_nigar",  "Nigar Cəfərova",   "demo.nigar@example.com",  "+994501112209"},
+            {"demo_orxan",  "Orxan İbrahimov",  "demo.orxan@example.com",  "+994501112210"},
+    };
+
+    private List<User> seedDemoPatients() {
+        List<User> patients = new ArrayList<>();
+        for (String[] row : DEMO_PATIENTS) {
+            String username = row[0];
+            Optional<User> existing = userRepository.findByUsername(username);
+            if (existing.isPresent()) {
+                patients.add(existing.get());
+                continue;
+            }
+            User u = User.builder()
+                    .username(username)
+                    .password(passwordEncoder.encode(UUID.randomUUID().toString()))
+                    .fullName(row[1])
+                    .email(row[2])
+                    .phone(row[3])
+                    .role(Role.ROLE_PATIENT)
+                    .enabled(true)
+                    .build();
+            patients.add(userRepository.save(u));
+        }
+        return patients;
+    }
+
+    // Hər həkim üçün rating siyahısı (seed sırası ilə)
+    // Toplam 20 həkim — hər birinə fərqli sayda və qiymətdə rəylər
+    private static final int[][] DOCTOR_RATINGS = {
+            // Kardiologiya (5)
+            {5, 5, 4, 5, 4, 3},        // Aysel Məmmədova — baş həkim, çox rəy
+            {5, 4, 4},                 // Nicat Babayev
+            {5, 5, 4, 4, 3},           // Elnur İsmayılov
+            {5, 4, 4, 3},              // Tahirə Şirinova
+            {5, 4, 3},                 // Vüsal Quliyev
+            // Nevrologiya (3)
+            {5, 5, 4, 4, 4, 3},        // Rəşid Əliyev
+            {5, 4, 4},                 // Səbinə Hacıyeva
+            {5, 5},                    // Kamran Mustafayev
+            // Pediatriya (8)
+            {5, 5, 5, 4, 4, 4, 3, 3},  // Günay Hüseynova — populyar
+            {5, 4, 4, 3},              // Murad Quliyev
+            {5, 5, 4},                 // Aytac Rzayeva
+            {5, 5, 4, 4, 3},           // Famil Əhmədov
+            {5, 4},                    // Lalə Səfərova
+            {5, 5, 4, 4, 3, 2},        // Orxan Bayramov
+            {5, 4, 4},                 // Zərifə Cəfərli
+            {5},                       // Tural Kərimov — yeni
+            // Daxili Xəstəliklər (4)
+            {5, 4, 4, 3},              // Elvin Quliyev
+            {5, 5, 4, 4, 3},           // Lalə Cəfərova
+            {5, 4},                    // Sənan Əliyev
+            {5, 5, 4, 3, 3, 2}         // Nigar Hüseynova
+    };
+
+    private static final String[] DEMO_COMMENTS = {
+            "Çox peşəkar həkimdir, tövsiyə edirəm.",
+            "Səbirli və diqqətlidir, məmnun qaldım.",
+            "Vaxtında qəbul etdi, izahlı danışdı.",
+            "Mehriban və diqqətli yanaşma.",
+            null,
+            "Yaxşı diaqnoz qoydu, təşəkkürlər.",
+            "Çox razı qaldım, peşəkar yanaşma.",
+            null,
+            "Normaldır, gözlədiyimdən yaxşı idi.",
+            "Mütəxəssis həkimdir, məsləhət görürəm."
+    };
+
+    private void seedDemoReviews(List<User> patients) {
+        if (patients.isEmpty()) return;
+
+        // Seed sırasını DoctorSeed siyahısı ilə uyğunlaşdırırıq:
+        // həkimləri DB-dən yox, seed siyahısındakı adlarla götürürük
+        String[] seedOrder = {
+                "Dr. Aysel Məmmədova", "Dr. Nicat Babayev", "Dr. Elnur İsmayılov",
+                "Dr. Tahirə Şirinova", "Dr. Vüsal Quliyev",
+                "Dr. Rəşid Əliyev", "Dr. Səbinə Hacıyeva", "Dr. Kamran Mustafayev",
+                "Dr. Günay Hüseynova", "Dr. Murad Quliyev", "Dr. Aytac Rzayeva",
+                "Dr. Famil Əhmədov", "Dr. Lalə Səfərova", "Dr. Orxan Bayramov",
+                "Dr. Zərifə Cəfərli", "Dr. Tural Kərimov",
+                "Dr. Elvin Quliyev", "Dr. Lalə Cəfərova", "Dr. Sənan Əliyev",
+                "Dr. Nigar Hüseynova"
+        };
+
+        for (int i = 0; i < seedOrder.length && i < DOCTOR_RATINGS.length; i++) {
+            Optional<Doctor> opt = doctorRepository.findByFullName(seedOrder[i]);
+            if (opt.isEmpty()) continue;
+            Doctor doc = opt.get();
+
+            // Yalnız həkimin heç bir rəyi yoxdursa seed et — real rəylərə toxunma
+            if (reviewRepository.countByDoctorId(doc.getId()) > 0) continue;
+
+            int[] ratings = DOCTOR_RATINGS[i];
+            LocalDateTime base = LocalDateTime.now().minusDays(30);
+
+            for (int j = 0; j < ratings.length && j < patients.size(); j++) {
+                User patient = patients.get(j);
+                int r = ratings[j];
+                QuickFeedback qf = r >= 4 ? QuickFeedback.GOOD
+                                  : r == 3 ? QuickFeedback.AVERAGE
+                                  : QuickFeedback.BAD;
+                String comment = DEMO_COMMENTS[(i * 3 + j) % DEMO_COMMENTS.length];
+
+                Review review = Review.builder()
+                        .doctor(doc)
+                        .patient(patient)
+                        .rating((double) r)
+                        .quickFeedback(qf)
+                        .comment(comment)
+                        .createdAt(base.plusDays(j))
+                        .build();
+                reviewRepository.save(review);
+            }
+        }
+    }
 }
