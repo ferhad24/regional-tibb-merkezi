@@ -25,7 +25,7 @@ public class DoctorService {
 
     @Transactional(readOnly = true)
     public Doctor findById(Long id) {
-        return doctorRepository.findById(id)
+        return doctorRepository.findByIdWithDepartment(id)
                 .orElseThrow(() -> new IllegalArgumentException("Həkim tapılmadı: " + id));
     }
 

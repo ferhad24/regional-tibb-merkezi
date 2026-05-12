@@ -20,4 +20,7 @@ public interface DoctorRepository extends JpaRepository<Doctor, Long> {
     long countByDepartmentId(Long departmentId);
 
     java.util.Optional<Doctor> findByFullName(String fullName);
+
+    @Query("SELECT d FROM Doctor d JOIN FETCH d.department WHERE d.id = :id")
+    java.util.Optional<Doctor> findByIdWithDepartment(Long id);
 }
