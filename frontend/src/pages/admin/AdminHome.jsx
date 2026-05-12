@@ -17,7 +17,7 @@ const CARDS = [
   { key: 'doctors', label: 'Həkimlər', icon: 'bi-person-badge', to: '/admin/doctors', color: '#0d6efd' },
   { key: 'departments', label: 'Şöbələr', icon: 'bi-building', to: '/admin/departments', color: '#198754' },
   { key: 'appointments', label: 'Növbələr', icon: 'bi-calendar-week', to: '/admin/appointments', color: '#0dcaf0' },
-  { key: 'patients', label: 'Xəstələr', icon: 'bi-people', to: '/admin/doctors', color: '#6f42c1' },
+  { key: 'patients', label: 'Xəstələr', icon: 'bi-people', to: '/admin/patients', color: '#6f42c1' },
 ];
 
 function formatDate(iso) {
@@ -147,23 +147,6 @@ export default function AdminHome() {
         </div>
       </div>
 
-      <div className="row g-3 mt-1">
-        <div className="col-12">
-          <div className="card">
-            <div className="card-body d-flex flex-wrap gap-2">
-              <Link to="/admin/doctors" className="btn btn-primary btn-pill">
-                <i className="bi bi-person-badge me-1" /> Həkimləri idarə et
-              </Link>
-              <Link to="/admin/departments" className="btn btn-outline-primary btn-pill">
-                <i className="bi bi-building me-1" /> Şöbələri idarə et
-              </Link>
-              <Link to="/admin/appointments" className="btn btn-outline-primary btn-pill">
-                <i className="bi bi-calendar-week me-1" /> Bütün növbələr
-              </Link>
-            </div>
-          </div>
-        </div>
-      </div>
     </div>
   );
 }

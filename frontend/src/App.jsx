@@ -13,6 +13,7 @@ import AdminHome from './pages/admin/AdminHome.jsx';
 import AdminDoctors from './pages/admin/AdminDoctors.jsx';
 import AdminDepartments from './pages/admin/AdminDepartments.jsx';
 import AdminAppointments from './pages/admin/AdminAppointments.jsx';
+import AdminPatients from './pages/admin/AdminPatients.jsx';
 
 function NotFound() {
   return (
@@ -79,6 +80,14 @@ export default function App() {
           element={
             <ProtectedRoute role="ROLE_ADMIN">
               <AdminAppointments />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/patients"
+          element={
+            <ProtectedRoute role="ROLE_ADMIN">
+              <AdminPatients />
             </ProtectedRoute>
           }
         />

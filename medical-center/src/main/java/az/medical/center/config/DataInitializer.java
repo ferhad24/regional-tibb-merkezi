@@ -1,11 +1,14 @@
 package az.medical.center.config;
 
+import az.medical.center.entity.Appointment;
+import az.medical.center.entity.AppointmentStatus;
 import az.medical.center.entity.Department;
 import az.medical.center.entity.Doctor;
 import az.medical.center.entity.QuickFeedback;
 import az.medical.center.entity.Review;
 import az.medical.center.entity.Role;
 import az.medical.center.entity.User;
+import az.medical.center.repository.AppointmentRepository;
 import az.medical.center.repository.DepartmentRepository;
 import az.medical.center.repository.DoctorRepository;
 import az.medical.center.repository.ReviewRepository;
@@ -19,12 +22,15 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.support.TransactionTemplate;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Random;
 import java.util.UUID;
 
 @Component
@@ -36,6 +42,7 @@ public class DataInitializer implements CommandLineRunner {
     private final DepartmentRepository departmentRepository;
     private final DoctorRepository doctorRepository;
     private final ReviewRepository reviewRepository;
+    private final AppointmentRepository appointmentRepository;
     private final PasswordEncoder passwordEncoder;
     private final PlatformTransactionManager transactionManager;
 
@@ -87,6 +94,7 @@ public class DataInitializer implements CommandLineRunner {
 
         if (patientsHolder[0] != null) {
             safe(tt, "seedDemoReviews", () -> seedDemoReviews(patientsHolder[0]));
+            safe(tt, "seedDemoAppointments", () -> seedDemoAppointments(patientsHolder[0]));
         }
     }
 
@@ -477,5 +485,64 @@ public class DataInitializer implements CommandLineRunner {
                 reviewRepository.save(review);
             }
         }
+    }
+
+    // ========== Demo Növbələr (Qrafik üçün real data) ==========
+    private void seedDemoAppointments(List<User> patients) {
+        if (patients.isEmpty()) return;
+
+        // Hər hansı demo xəstənin artıq növbəsi varsa skip — idempotentlik
+        for (User p : patients) {
+            if (appointmentRepository.countByPatientId(p.getId()) > 0) {
+                log.info("Demo appointments already exist for patient {}; skipping seed", p.getUsername());
+                return;
+            }
+        }
+
+        List<Doctor> doctors = doctorRepository.findAll();
+        if (doctors.isEmpty()) return;
+
+        // Deterministik random — hər restart eyni nəticə
+        Random rnd = new Random(42L);
+
+        // 09:00-dan 16:30-a 30-dəq slotlar
+        LocalTime[] slots = new LocalTime[16];
+        for (int i = 0; i < 16; i++) {
+            slots[i] = LocalTime.of(9 + i / 2, (i % 2) * 30);
+        }
+
+        // Hər xəstə üçün son 14 günə yayılmış 2-4 növbə
+        // Bu son 7 günə düşənləri qrafikdə göstərəcək
+        int total = 0;
+        for (User patient : patients) {
+            int count = 2 + rnd.nextInt(3); // 2-4
+            for (int k = 0; k < count; k++) {
+                Doctor doc = doctors.get(rnd.nextInt(doctors.size()));
+                int daysAgo = rnd.nextInt(14); // 0..13 gün əvvəl
+                LocalDate date = LocalDate.now().minusDays(daysAgo);
+                LocalTime time = slots[rnd.nextInt(slots.length)];
+                AppointmentStatus status;
+                int s = rnd.nextInt(10);
+                if (s < 6) status = AppointmentStatus.BOOKED;
+                else if (s < 8) status = AppointmentStatus.COMPLETED;
+                else status = AppointmentStatus.CANCELLED;
+
+                try {
+                    Appointment appt = Appointment.builder()
+                            .patient(patient)
+                            .doctor(doc)
+                            .date(date)
+                            .time(time)
+                            .status(status)
+                            .createdAt(LocalDateTime.now().minusDays(daysAgo))
+                            .build();
+                    appointmentRepository.save(appt);
+                    total++;
+                } catch (Exception ex) {
+                    // Unique constraint (doctor, date, time, status) - sadəcə skip
+                }
+            }
+        }
+        log.info("Seeded {} demo appointments across {} patients", total, patients.size());
     }
 }

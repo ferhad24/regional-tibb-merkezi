@@ -125,6 +125,13 @@ public class AdminController {
         return ResponseEntity.noContent().build();
     }
 
+    @GetMapping("/patients")
+    public List<AdminPatientResponse> patients() {
+        return userRepository.findAllByRole(Role.ROLE_PATIENT).stream()
+                .map(u -> AdminPatientResponse.from(u, appointmentRepository.countByPatientId(u.getId())))
+                .toList();
+    }
+
     @GetMapping("/appointments")
     public List<AppointmentResponse> appointments() {
         return appointmentService.findAll().stream().map(AppointmentResponse::from).toList();

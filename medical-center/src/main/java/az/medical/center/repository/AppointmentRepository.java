@@ -25,4 +25,6 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Long> 
     @Query("SELECT a.date AS d, COUNT(a) AS c FROM Appointment a " +
             "WHERE a.date >= :fromDate GROUP BY a.date ORDER BY a.date ASC")
     List<Object[]> countByDateSince(java.time.LocalDate fromDate);
+
+    long countByPatientId(Long patientId);
 }
