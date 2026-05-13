@@ -68,7 +68,7 @@ export default function Dashboard() {
     return appointments.filter((a) => a.status === filter);
   }, [appointments, filter]);
 
-  const onProfileSaved = async (updated) => {
+  const onProfileSaved = async () => {
     setInfo('Profil yeniləndi');
     if (refreshUser) await refreshUser();
     else window.location.reload();
@@ -120,15 +120,6 @@ export default function Dashboard() {
                       <span className="badge bg-success-subtle text-success">
                         <i className="bi bi-check-circle me-1" /> Aktiv
                       </span>
-                    </span>
-                  </div>
-                </div>
-                <div className="col-sm-6">
-                  <div className="profile-info-row">
-                    <i className="bi bi-person-check" />
-                    <span className="label">Rol:</span>
-                    <span className="value">
-                      <span className="badge bg-primary-subtle text-primary">Xəstə</span>
                     </span>
                   </div>
                 </div>
