@@ -39,11 +39,21 @@ export function AuthProvider({ children }) {
     setUser(null);
   };
 
+  const refreshUser = async () => {
+    try {
+      const res = await api.get('/auth/me');
+      setUser(res.data);
+      return res.data;
+    } catch {
+      return null;
+    }
+  };
+
   const isAdmin = user?.role === 'ROLE_ADMIN';
   const isPatient = user?.role === 'ROLE_PATIENT';
 
   return (
-    <AuthContext.Provider value={{ user, loading, login, logout, register, isAdmin, isPatient }}>
+    <AuthContext.Provider value={{ user, loading, login, logout, register, refreshUser, isAdmin, isPatient }}>
       {children}
     </AuthContext.Provider>
   );
